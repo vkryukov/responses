@@ -1,4 +1,4 @@
-defmodule OpenAI.Responses.Response do
+defmodule Responses.Response do
   @moduledoc """
   Represent a response from the OpenAI API.
 
@@ -19,7 +19,7 @@ defmodule OpenAI.Responses.Response do
   """
   defstruct [:text, :parsed, :parse_error, :function_calls, :body, :cost]
 
-  alias OpenAI.Responses.Pricing
+  alias Responses.Pricing
 
   @typedoc "Structured representation of an OpenAI response"
   @type cost_t :: %{
@@ -67,7 +67,7 @@ defmodule OpenAI.Responses.Response do
   @doc """
   Extract the text from the response body.
 
-  Only extracts text from the first assistant response to handle cases where 
+  Only extracts text from the first assistant response to handle cases where
   the API returns duplicate assistant responses.
   """
   def extract_text(response) do

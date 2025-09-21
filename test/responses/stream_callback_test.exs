@@ -1,8 +1,8 @@
-defmodule OpenAI.Responses.StreamCallbackTest do
+defmodule Responses.StreamCallbackTest do
   use ExUnit.Case
 
-  alias OpenAI.Responses
-  alias OpenAI.Responses.Response
+  alias Responses
+  alias Responses.Response
 
   describe "create/1 with stream callback" do
     @tag :api

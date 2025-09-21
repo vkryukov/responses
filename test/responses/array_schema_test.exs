@@ -1,8 +1,8 @@
-defmodule OpenAI.Responses.ArraySchemaTest do
+defmodule Responses.ArraySchemaTest do
   use ExUnit.Case, async: true
 
-  alias OpenAI.Responses.Response
-  alias OpenAI.Responses.Schema
+  alias Responses.Response
+  alias Responses.Schema
 
   describe "Schema.build_output/1 with array at root" do
     test "wraps array schema in an object" do

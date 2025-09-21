@@ -1,7 +1,7 @@
-defmodule OpenAI.Responses.FromMapTest do
+defmodule Responses.FromMapTest do
   use ExUnit.Case, async: true
 
-  alias OpenAI.Responses.Response
+  alias Responses.Response
 
   test "recreates struct from string-keyed map with decimals" do
     raw = %{

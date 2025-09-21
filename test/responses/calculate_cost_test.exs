@@ -1,6 +1,6 @@
-defmodule OpenAI.Responses.CalculateCostTest do
+defmodule Responses.CalculateCostTest do
   use ExUnit.Case
-  alias OpenAI.Responses.Response
+  alias Responses.Response
 
   # Helper to compare decimal costs
   defp assert_cost_equals(actual, expected) do

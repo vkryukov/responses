@@ -1,7 +1,7 @@
-defmodule OpenAI.Responses.OptionsTest do
+defmodule Responses.OptionsTest do
   use ExUnit.Case, async: true
 
-  alias OpenAI.Responses.Options
+  alias Responses.Options
 
   describe "normalize/1" do
     test "normalizes keyword lists to string-key maps" do

@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.8.3
 
 ### Added
-- `OpenAI.Responses.Response.from_map/1` to re-create a `%Response{}` struct from a plain map. Accepts atom or string keys (e.g., "text", "body", etc.).
+- `Responses.Response.from_map/1` to re-create a `%Response{}` struct from a plain map. Accepts atom or string keys (e.g., "text", "body", etc.).
   - Normalizes `parse_error` known keys (json, function_calls) to atom keys.
   - Coerces `cost` fields to `Decimal` from strings, integers, or floats.
   - Defaults `body` to `%{}` when missing.
@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.8.2
 
 ### Fixed
-- Prompt input normalization: `OpenAI.Responses.Prompt.add_user/2` (and `append/2`, `prepend/2`) now always wrap messages in a list so `:input` is never a single map. This avoids API errors like "Invalid type for 'input': expected one of a string or array of input items, but got an object instead." When composing prompts, even a single message results in `input: [%{...}]`.
+- Prompt input normalization: `Responses.Prompt.add_user/2` (and `append/2`, `prepend/2`) now always wrap messages in a list so `:input` is never a single map. This avoids API errors like "Invalid type for 'input': expected one of a string or array of input items, but got an object instead." When composing prompts, even a single message results in `input: [%{...}]`.
 
 ### Tests
 - Updated prompt tests to reflect list-based input semantics and added coverage for normalizing existing non-list `:input` values (string or single map) during `append/2` and `prepend/2`.
@@ -44,26 +44,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Prompt helpers for composing inputs
-  - `OpenAI.Responses.Prompt.append/2` and `prepend/2`
-  - `OpenAI.Responses.Prompt.add_user/2`, `add_developer/2`, `add_system/2`
-  - `OpenAI.Responses.Prompt.add_function_outputs/3` to execute function calls and append outputs
+  - `Responses.Prompt.append/2` and `prepend/2`
+  - `Responses.Prompt.add_user/2`, `add_developer/2`, `add_system/2`
+  - `Responses.Prompt.add_function_outputs/3` to execute function calls and append outputs
 
   Example:
   ```elixir
-  alias OpenAI.Responses.Prompt
+  alias Responses.Prompt
 
   opts = %{}
   opts = Prompt.add_developer(opts, "Talk like a pirate.")
   opts = Prompt.add_user(opts, "Write me a haiku about Elixir")
   opts = Map.put(opts, :model, "gpt-4.1-mini")
-  response = OpenAI.Responses.create!(opts)
+  response = Responses.create!(opts)
   ```
 
   Function calling example:
   ```elixir
   functions = %{"get_time" => fn %{} -> DateTime.utc_now() |> to_string() end}
   opts = Prompt.add_function_outputs(%{input: []}, response.function_calls, functions)
-  final = OpenAI.Responses.create!(response, opts)
+  final = Responses.create!(response, opts)
   ```
 
 ### Deprecated
@@ -74,55 +74,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `Responses.call_functions/2`
-  - Use `OpenAI.Responses.Prompt.add_function_outputs/3` instead to execute function calls and build inputs for the next turn.
+  - Use `Responses.Prompt.add_function_outputs/3` instead to execute function calls and build inputs for the next turn.
 
 ### Migration
 - Replace manual function calling usages:
   - Before:
     ```elixir
-    outputs = OpenAI.Responses.call_functions(response.function_calls, functions)
-    {:ok, final} = OpenAI.Responses.create(response, input: outputs)
+    outputs = Responses.call_functions(response.function_calls, functions)
+    {:ok, final} = Responses.create(response, input: outputs)
     ```
   - After:
     ```elixir
-    alias OpenAI.Responses.Prompt
+    alias Responses.Prompt
     opts = Prompt.add_function_outputs(%{input: []}, response.function_calls, functions)
-    {:ok, final} = OpenAI.Responses.create(response, opts)
+    {:ok, final} = Responses.create(response, opts)
     ```
 - Always provide a model explicitly:
   - Before (deprecated):
     ```elixir
-    OpenAI.Responses.create!(input: "Write a haiku")
-    OpenAI.Responses.stream(input: "Stream some text")
+    Responses.create!(input: "Write a haiku")
+    Responses.stream(input: "Stream some text")
     ```
   - After:
     ```elixir
-    OpenAI.Responses.create!(input: "Write a haiku", model: "gpt-4.1-mini")
-    OpenAI.Responses.stream(input: "Stream some text", model: "gpt-4.1-mini")
+    Responses.create!(input: "Write a haiku", model: "gpt-4.1-mini")
+    Responses.stream(input: "Stream some text", model: "gpt-4.1-mini")
     ```
 - Replace string shorthand calls:
   - Before (deprecated):
     ```elixir
-    OpenAI.Responses.create!("Write a haiku")
-    OpenAI.Responses.stream("Stream some text")
+    Responses.create!("Write a haiku")
+    Responses.stream("Stream some text")
     ```
   - After:
     ```elixir
-    OpenAI.Responses.create!(input: "Write a haiku", model: "gpt-4.1-mini")
-    OpenAI.Responses.stream(input: "Stream some text", model: "gpt-4.1-mini")
+    Responses.create!(input: "Write a haiku", model: "gpt-4.1-mini")
+    Responses.stream(input: "Stream some text", model: "gpt-4.1-mini")
     ```
 - For function calling loops with `run/2`, include `model` in the options list:
   - ```elixir
-    OpenAI.Responses.run([input: "question", tools: [tool], model: "gpt-4.1-mini"], functions)
+    Responses.run([input: "question", tools: [tool], model: "gpt-4.1-mini"], functions)
     ```
 - Use Prompt helpers to compose inputs when convenient:
   - ```elixir
-    alias OpenAI.Responses.Prompt
+    alias Responses.Prompt
     opts = %{}
     |> Prompt.add_developer("Talk like a pirate.")
     |> Prompt.add_user("Write me a haiku about Elixir")
     |> Map.put(:model, "gpt-4.1-mini")
-    OpenAI.Responses.create!(opts)
+    Responses.create!(opts)
     ```
 
 ## 0.7.0
@@ -208,7 +208,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `create/1` and `create/2` - Create responses with map or keyword list options
   - `stream/1` - Stream responses using map or keyword list options
   - `run/2` - Run function calling conversations with map or keyword list options
-  - `OpenAI.Responses.Stream.stream/1` and `OpenAI.Responses.Stream.stream_with_callback/2` - Stream functions also accept maps
+  - `Responses.Stream.stream/1` and `Responses.Stream.stream_with_callback/2` - Stream functions also accept maps
   - Maps with mixed atom and string keys are supported
   - Example: `Responses.create(%{input: "Hello", model: "gpt-4o"})`
 
@@ -219,9 +219,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `{:anyOf, [:string, :number]}` - tuple syntax for simple unions
   - `[:anyOf, [:string, :number]]` - list syntax for simple unions
   - Complex unions with objects and nested structures are fully supported
-- **LLM usage guide** - Added comprehensive `usage-rules.md` documentation with detailed examples and best practices for using the OpenAI.Responses library with LLM agents
+- **LLM usage guide** - Added comprehensive `usage-rules.md` documentation with detailed examples and best practices for using the Responses library with LLM agents
 - **Manual function calling with `call_functions/2`** - Added public function to execute function calls from a response and format results for the API. This enables custom workflows where users need to intercept, modify, or add context to function results before continuing the conversation. Function return values are passed through without string conversion, so they must be JSON-encodable (maps, lists, strings, numbers, booleans, nil)
-- **Error module with retry support** - Added `OpenAI.Responses.Error` exception module that:
+- **Error module with retry support** - Added `Responses.Error` exception module that:
   - Represents OpenAI API errors with fields for message, code, param, type, and HTTP status
   - Provides `retryable?/1` function to determine if errors can be retried
   - Supports both HTTP status codes (429, 500, 503) and Req transport errors (timeout, closed)

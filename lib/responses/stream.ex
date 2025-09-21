@@ -1,4 +1,4 @@
-defmodule OpenAI.Responses.Stream do
+defmodule Responses.Stream do
   @moduledoc """
   Streaming functionality for the Responses library.
 
@@ -26,8 +26,8 @@ defmodule OpenAI.Responses.Stream do
       |> Stream.run()
   """
 
-  alias OpenAI.Responses
-  alias OpenAI.Responses.Internal
+  alias Responses
+  alias Responses.Internal
 
   @streaming_timeout 30_000
 
@@ -105,7 +105,7 @@ defmodule OpenAI.Responses.Stream do
     # Return the response with the captured data
     case {result, response_data} do
       {{:ok, _}, data} when not is_nil(data) ->
-        {:ok, %OpenAI.Responses.Response{body: data}}
+        {:ok, %Responses.Response{body: data}}
 
       _ ->
         result

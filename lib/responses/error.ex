@@ -1,4 +1,4 @@
-defmodule OpenAI.Responses.Error do
+defmodule Responses.Error do
   @moduledoc """
   Exception module for OpenAI API errors.
 
@@ -15,13 +15,13 @@ defmodule OpenAI.Responses.Error do
 
   ## Examples
 
-      iex> error = %OpenAI.Responses.Error{
+      iex> error = %Responses.Error{
       ...>   message: "Rate limit exceeded",
       ...>   code: "rate_limit_exceeded",
       ...>   type: "rate_limit_exceeded",
       ...>   status: 429
       ...> }
-      iex> OpenAI.Responses.Error.retryable?(error)
+      iex> Responses.Error.retryable?(error)
       true
 
   """
@@ -67,16 +67,16 @@ defmodule OpenAI.Responses.Error do
 
   ## Examples
 
-      iex> error = %OpenAI.Responses.Error{status: 429}
-      iex> OpenAI.Responses.Error.retryable?(error)
+      iex> error = %Responses.Error{status: 429}
+      iex> Responses.Error.retryable?(error)
       true
 
-      iex> error = %OpenAI.Responses.Error{status: 400}
-      iex> OpenAI.Responses.Error.retryable?(error)
+      iex> error = %Responses.Error{status: 400}
+      iex> Responses.Error.retryable?(error)
       false
 
       iex> error = %Req.TransportError{reason: :timeout}
-      iex> OpenAI.Responses.Error.retryable?(error)
+      iex> Responses.Error.retryable?(error)
       true
   """
   def retryable?(%__MODULE__{status: status}) do

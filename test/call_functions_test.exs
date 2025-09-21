@@ -1,6 +1,6 @@
-defmodule OpenAI.Responses.PromptFunctionOutputsTest do
+defmodule Responses.PromptFunctionOutputsTest do
   use ExUnit.Case
-  alias OpenAI.Responses.Prompt
+  alias Responses.Prompt
 
   describe "add_function_outputs/3" do
     test "executes functions and formats outputs" do

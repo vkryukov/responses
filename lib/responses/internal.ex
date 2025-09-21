@@ -1,10 +1,10 @@
-defmodule OpenAI.Responses.Internal do
+defmodule Responses.Internal do
   @moduledoc false
 
   @default_model "gpt-4.1-mini"
 
-  alias OpenAI.Responses.Options
-  alias OpenAI.Responses.Schema
+  alias Responses.Options
+  alias Responses.Schema
 
   @doc """
   Prepare the payload for API requests.

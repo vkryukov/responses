@@ -1,4 +1,4 @@
-defmodule OpenAI.Responses.Pricing do
+defmodule Responses.Pricing do
   @moduledoc """
   Pricing information for OpenAI models.
 

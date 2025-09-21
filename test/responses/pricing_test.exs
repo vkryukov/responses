@@ -1,6 +1,6 @@
-defmodule OpenAI.Responses.PricingTest do
+defmodule Responses.PricingTest do
   use ExUnit.Case
-  alias OpenAI.Responses.Pricing
+  alias Responses.Pricing
 
   describe "get_pricing/1" do
     test "returns pricing for known models" do

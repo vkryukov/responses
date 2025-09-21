@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-OpenAI.Responses is an Elixir client library for the OpenAI Responses API. It provides a simple interface for creating AI responses, with support for streaming, structured outputs, function calling, and automatic cost calculation.
+Responses is an Elixir client library for the OpenAI Responses API. It provides a simple interface for creating AI responses, with support for streaming, structured outputs, function calling, and automatic cost calculation.
 
 ## Essential Commands
 
@@ -30,7 +30,7 @@ mix docs
 
 ### Core Modules
 
-**`OpenAI.Responses`** - Main API interface
+**`Responses`** - Main API interface
 - `create/1` and `create/2` - Synchronous or streaming AI responses
 - `create!/1` and `create!/2` - Same as create but raises on error
 - `run/2` and `run!/2` - Run conversations with automatic function calling
@@ -40,14 +40,14 @@ mix docs
 - `request/1` - Low-level API request function
 - Default model: "gpt-4.1-mini"
 
-**`OpenAI.Responses.Response`** - Response handling
+**`Responses.Response`** - Response handling
 - Struct with fields: `text`, `body`, `parsed`, `parse_error`, `cost`
 - `extract_text/1` - Extracts assistant messages from raw API responses (now idempotent)
 - `extract_json/1` - Extracts structured data from JSON responses (auto-calls extract_text)
 - `extract_function_calls/1` - Extracts function call results from responses
 - `calculate_cost/1` - Calculates usage costs using Decimal for precision
 
-**`OpenAI.Responses.Stream`** - Streaming functionality
+**`Responses.Stream`** - Streaming functionality
 - `stream_with_callback/2` - Streams with callback function and returns `{:ok, %Response{}}` with complete response data
 - `stream/1` - Returns Elixir Stream that yields `{:ok, chunk}` or `{:error, reason}` tuples
 - `text_deltas/1` - Extracts text deltas from event streams, filters for text content only
@@ -56,7 +56,7 @@ mix docs
 - `print_unique_events/0` - Debug helper that prints each unique event type once
 - Event format: `{:ok, %{event: "event_type", data: %{...}}}` or `{:error, reason}`
 
-**`OpenAI.Responses.Schema`** - Structured output and function calling support
+**`Responses.Schema`** - Structured output and function calling support
 - `build_output/1` - Converts Elixir syntax to JSON Schema for structured outputs
 - `build_function/3` - Builds function calling tool schemas (name, description, parameters)
 - Used for `output_schema` parameter and function calling tools in API calls
@@ -69,7 +69,7 @@ API Key (required) - set via one of:
 
 ### Key Patterns
 
-1. All API responses include automatic cost calculation using the `OpenAI.Responses.Pricing` module
+1. All API responses include automatic cost calculation using the `Responses.Pricing` module
 2. Streaming responses use Server-Sent Events (SSE) format and return processed `Response` structs
 3. The library uses `req` for HTTP with automatic retries and error handling
 4. Text extraction is automatic and idempotent - `Response.text` contains assistant messages

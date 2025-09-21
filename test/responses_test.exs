@@ -1,7 +1,7 @@
-defmodule OpenAI.ResponsesTest do
+defmodule ResponsesTest do
   use ExUnit.Case
 
-  alias OpenAI.Responses
+  alias Responses
 
   @tag :api
   test "create with explicit input and model returns correct text" do

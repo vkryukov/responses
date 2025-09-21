@@ -1,6 +1,6 @@
-# OpenAI.Responses Usage Guide
+# Responses Usage Guide
 
-This guide covers all public-facing functions of the OpenAI.Responses package for LLM agents. OpenAI.Responses is an Elixir client library for interacting with OpenAI's Large Language Models (LLMs), providing a simple and powerful interface for AI-powered text generation, structured outputs, function calling, and real-time streaming.
+This guide covers all public-facing functions of the Responses package for LLM agents. Responses is an Elixir client library for interacting with OpenAI's Large Language Models (LLMs), providing a simple and powerful interface for AI-powered text generation, structured outputs, function calling, and real-time streaming.
 
 ## Setup
 
@@ -12,7 +12,7 @@ This guide covers all public-facing functions of the OpenAI.Responses package fo
 export OPENAI_API_KEY="your-key"
 ```
 
-## Main Module: OpenAI.Responses
+## Main Module: Responses
 
 ### create/1 and create!/1
 Creates a new AI response. The bang version raises on error.
@@ -134,7 +134,7 @@ functions = %{
   end
 }
 
-alias OpenAI.Responses.Prompt
+alias Responses.Prompt
 
 # Execute functions and append outputs to the prompt
 opts = Prompt.add_function_outputs(%{input: []}, response.function_calls, functions)
@@ -166,7 +166,7 @@ Low-level API request function for custom endpoints.
 )
 ```
 
-## Response Module: OpenAI.Responses.Response
+## Response Module: Responses.Response
 
 Response struct fields:
 - `text` - Extracted assistant message text
@@ -180,7 +180,7 @@ Response struct fields:
 Rebuilds a `%Response{}` struct from a map with atom or string keys. Useful for rehydrating stored responses.
 
 ```elixir
-alias OpenAI.Responses.Response
+alias Responses.Response
 
 stored = %{
   "text" => "hello",
@@ -234,7 +234,7 @@ response.cost # => %{
 # }
 ```
 
-## Stream Module: OpenAI.Responses.Stream
+## Stream Module: Responses.Stream
 
 ### stream_with_callback/2
 Streams responses with a callback function, returns final response.
@@ -297,7 +297,7 @@ Responses.stream(
 # Yields: :start_object, {:string, "items"}, :colon, :start_array, etc.
 ```
 
-## Schema Module: OpenAI.Responses.Schema
+## Schema Module: Responses.Schema
 
 ### build_output/1
 Converts Elixir syntax to JSON Schema for structured outputs.
@@ -386,7 +386,7 @@ chat = Responses.create!(chat, input: "What can you help with?")
 
 ### Prompt.append/2 with a list of messages
 ```elixir
-alias OpenAI.Responses.Prompt
+alias Responses.Prompt
 
 opts = %{}
 opts = Prompt.append(opts, [

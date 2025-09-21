@@ -1,4 +1,4 @@
-defmodule OpenAI.Responses do
+defmodule Responses do
   @moduledoc """
   Client for OpenAI Responses API.
 
@@ -30,11 +30,11 @@ defmodule OpenAI.Responses do
 
   @default_receive_timeout 60_000
 
-  alias OpenAI.Responses
-  alias OpenAI.Responses.Error
-  alias OpenAI.Responses.Internal
-  alias OpenAI.Responses.Options
-  alias OpenAI.Responses.Response
+  alias Responses
+  alias Responses.Error
+  alias Responses.Internal
+  alias Responses.Options
+  alias Responses.Response
 
   @typedoc "User-facing options accepted by create/1, stream/1, run/2"
   @type options_input :: map() | keyword()
@@ -138,7 +138,7 @@ defmodule OpenAI.Responses do
       })
 
   The response will include a `parsed` field with the extracted structured data.
-  See `OpenAI.Responses.Schema` for the full schema syntax documentation.
+  See `Responses.Schema` for the full schema syntax documentation.
 
   ## Streaming
 
@@ -468,7 +468,7 @@ defmodule OpenAI.Responses do
       calls ->
         # Process function calls and continue
         outputs_opts =
-          OpenAI.Responses.Prompt.add_function_outputs(%{input: []}, calls, functions)
+          Responses.Prompt.add_function_outputs(%{input: []}, calls, functions)
 
         # Continue conversation with function results using the latest response
         do_run(response, Map.to_list(outputs_opts), functions, responses)

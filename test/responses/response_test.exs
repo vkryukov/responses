@@ -1,6 +1,6 @@
-defmodule OpenAI.Responses.ResponseTest do
+defmodule Responses.ResponseTest do
   use ExUnit.Case
-  alias OpenAI.Responses.Response
+  alias Responses.Response
 
   describe "extract_text/1" do
     test "extracts text from a single output_text response" do

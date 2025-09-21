@@ -1,7 +1,7 @@
-defmodule OpenAI.Responses.PromptTest do
+defmodule Responses.PromptTest do
   use ExUnit.Case, async: true
 
-  alias OpenAI.Responses.Prompt
+  alias Responses.Prompt
 
   describe "add_* shorthands on empty opts" do
     test "add_user/2 wraps single message in a list" do

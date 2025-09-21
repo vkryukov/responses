@@ -1,4 +1,4 @@
-defmodule OpenAI.Responses.Schema do
+defmodule Responses.Schema do
   @moduledoc """
   Helper module for defining structured output schemas and function calling tools.
 

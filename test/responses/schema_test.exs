@@ -1,6 +1,6 @@
-defmodule OpenAI.Responses.SchemaTest do
+defmodule Responses.SchemaTest do
   use ExUnit.Case
-  alias OpenAI.Responses.Schema
+  alias Responses.Schema
 
   describe "build_output/1 with maps" do
     test "converts simple types" do

@@ -9,7 +9,7 @@ Mix.install([
 
 ## Introduction
 
-OpenAI.Responses is a [Small Development Kit](https://dashbit.co/blog/sdks-with-req-stripe) for the OpenAI [Responses](https://platform.openai.com/docs/api-reference/responses) API. It can get you started in no time, and automatically supports conversation state, structured responses, streaming, function calls, and cost calculations.
+Responses is a [Small Development Kit](https://dashbit.co/blog/sdks-with-req-stripe) for the OpenAI [Responses](https://platform.openai.com/docs/api-reference/responses) API. It can get you started in no time, and automatically supports conversation state, structured responses, streaming, function calls, and cost calculations.
 
 If you want an industrial-grade library that supports multiple providers, you should instead consider one of [LangChain](https://hexdocs.pm/langchain/readme.html), [OpenaiEx](https://hexdocs.pm/openai_ex/OpenaiEx.html), or [Instructor](https://hexdocs.pm/instructor/Instructor.html). If, however, you want to start as quickly as possible without learning a new framework first, and are ready to trade the flexibility of choosing an LLM provider for the conveniences of OpenAI's latest API, you've come to the right place!
 
@@ -33,11 +33,11 @@ end
 is enough to get you started:
 
 ```elixir
-alias OpenAI.Responses
+alias Responses
 
 # Explicit input and model are required
 {:ok, response} = Responses.create(input: "Write me a haiku about Elixir", model: "gpt-4.1-mini")
-# -> {:ok, %OpenAI.Responses.Response{text: ..., ...}}
+# -> {:ok, %Responses.Response{text: ..., ...}}
 
 IO.puts(response.text)
 ```
@@ -58,10 +58,10 @@ response =
 IO.puts("#{response.text}\n\nCost: $#{response.cost.total_cost}")
 ```
 
-There is also `create/2` and `create!/2` that take `%Responses.Response{}` as a first argument and keyword list as a second to automatically handle the [conversation state](https://platform.openai.com/docs/guides/conversation-state?api-mode=responses). You can also build prompts with `OpenAI.Responses.Prompt` helpers:
+There is also `create/2` and `create!/2` that take `%Responses.Response{}` as a first argument and keyword list as a second to automatically handle the [conversation state](https://platform.openai.com/docs/guides/conversation-state?api-mode=responses). You can also build prompts with `Responses.Prompt` helpers:
 
 ```elixir
-alias OpenAI.Responses.Prompt
+alias Responses.Prompt
 
 %{}
 |> Prompt.add_developer("Talk like a pirate.")
@@ -84,7 +84,7 @@ One of the coolest features of the latest generation of OpenAI models is their a
 The return result will automatically parse the response into `%Response{parsed: object}`.
 
 ```elixir
-alias OpenAI.Responses
+alias Responses
 
 Responses.create!(
   input: "List facts about first 3 U.S. Presidents",
@@ -109,7 +109,7 @@ The above example should give you enough to get started, and you can read the do
 
 ## Streaming
 
-Streaming model responses is a great way to increase interactivity of your application. There are two ways to support streaming with `OpenAI.Responses`:
+Streaming model responses is a great way to increase interactivity of your application. There are two ways to support streaming with `Responses`:
 
 1. By adding a `callback: callback_fn` option to `create/1`. Here `callback_fn/1` takes a map `%{event: type, data: data}` and should return either `:ok` to continue streaming or `{:error, reason}` to stop.
 
@@ -123,7 +123,7 @@ For the supported event types and data format, refer to the [Streaming Responses
 Here is an example of how this works. We use the `Responses.Stream.text_deltas` helper to transform the stream of events into a stream of text chunks, and use `Kino.Frame` to demonstrate interactive output updates in a Livebook.
 
 ```elixir
-alias OpenAI.Responses
+alias Responses
 
 frame = Kino.Frame.new()
 Kino.render(frame)
@@ -165,7 +165,7 @@ Responses.stream(
 Using OpenAI built-in tools, for example [Web Search](https://platform.openai.com/docs/guides/tools-web-search?api-mode=responses), is simple: just add a `tools:` parameter to `create/1`:
 
 ```elixir
-alias OpenAI.Responses
+alias Responses
 
 Responses.create!(
   input: "Summarize in 3 paragraphs a positive news story from today",
@@ -214,7 +214,7 @@ response
 Alternatively, use the helper to execute and append function outputs:
 
 ```elixir
-alias OpenAI.Responses.Prompt
+alias Responses.Prompt
 
 functions = %{
   "get_weather" => fn %{"location" => location} -> "15C in #{location}" end

@@ -1,4 +1,4 @@
-# OpenAI.Responses
+# Responses
 
 A client library for the OpenAI Responses API with automatic text extraction and cost calculation.
 
@@ -36,11 +36,11 @@ For a comprehensive tutorial and examples, see the [interactive tutorial](tutori
 
 ### Prompt Helpers
 
-Use `OpenAI.Responses.Prompt` to safely compose message inputs and function outputs.
+Use `Responses.Prompt` to safely compose message inputs and function outputs.
 
 ```elixir
-alias OpenAI.Responses
-alias OpenAI.Responses.Prompt
+alias Responses
+alias Responses.Prompt
 
 # Compose a prompt with roles
 opts = %{}
@@ -73,7 +73,7 @@ IO.puts(final.text)
 
 ```elixir
 defmodule Chat do
-  alias OpenAI.Responses
+  alias Responses
 
   def run do
     IO.puts("Simple AI Chat (type /exit or /quit to end)")
@@ -179,7 +179,7 @@ The library automatically handles OpenAI's requirement that the root level must 
 Example preserving `text` options:
 
 ```elixir
-payload = OpenAI.Responses.Internal.prepare_payload(%{
+payload = Responses.Internal.prepare_payload(%{
   input: "test",
   text: %{verbosity: "low"},
   schema: %{name: :string},
@@ -217,10 +217,10 @@ total_in_cents = response.cost.total_cost |> Decimal.mult(100) |> Decimal.to_flo
 - [GitHub Repository](https://github.com/vkryukov/openai-responses)
 ### Rehydrating a Response from a Map
 
-Use `OpenAI.Responses.Response.from_map/1` to rebuild a `%Response{}` struct from a stored map (supports atom or string keys):
+Use `Responses.Response.from_map/1` to rebuild a `%Response{}` struct from a stored map (supports atom or string keys):
 
 ```elixir
-alias OpenAI.Responses.Response
+alias Responses.Response
 
 stored = %{
   "text" => "hello",

@@ -1,4 +1,4 @@
-defmodule OpenAI.Responses.Options do
+defmodule Responses.Options do
   @moduledoc false
 
   @typedoc "Normalized options map with string keys"

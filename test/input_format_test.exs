@@ -1,8 +1,8 @@
-defmodule OpenAI.Responses.InputFormatTest do
+defmodule Responses.InputFormatTest do
   use ExUnit.Case, async: true
 
-  alias OpenAI.Responses
-  alias OpenAI.Responses.Internal
+  alias Responses
+  alias Responses.Internal
 
   describe "Internal.prepare_payload/1" do
     test "handles keyword lists with atom keys" do

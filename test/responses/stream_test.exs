@@ -1,7 +1,7 @@
-defmodule OpenAI.Responses.StreamTest do
+defmodule Responses.StreamTest do
   use ExUnit.Case
 
-  alias OpenAI.Responses
+  alias Responses
 
   # Helper to unwrap successful chunks for testing
   defp unwrap_chunks(chunks) do

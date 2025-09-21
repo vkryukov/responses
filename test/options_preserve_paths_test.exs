@@ -1,7 +1,7 @@
-defmodule OpenAI.Responses.OptionsPreservePathsTest do
+defmodule Responses.OptionsPreservePathsTest do
   use ExUnit.Case, async: true
 
-  alias OpenAI.Responses.Options
+  alias Responses.Options
 
   @paths [["model"], ["reasoning", "effort"], ["text", "verbosity"]]
 

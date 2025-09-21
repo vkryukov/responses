@@ -1,4 +1,4 @@
-defmodule OpenAI.Responses.Prompt do
+defmodule Responses.Prompt do
   @moduledoc """
   Helpers for composing and normalizing the `input` option for Responses.
 
@@ -12,7 +12,7 @@ defmodule OpenAI.Responses.Prompt do
   set to a single map — even a single message is wrapped in a list.
   """
 
-  alias OpenAI.Responses.Options
+  alias Responses.Options
 
   @type opts :: map() | keyword()
 

@@ -1,4 +1,4 @@
-defmodule OpenAI.Responses.MixProject do
+defmodule Responses.MixProject do
   use Mix.Project
 
   def project do
@@ -13,7 +13,7 @@ defmodule OpenAI.Responses.MixProject do
       docs: docs(),
 
       # Project metadata
-      name: "OpenAI.Responses",
+      name: "Responses",
       source_url: "https://github.com/vkryukov/openai_responses"
     ]
   end
@@ -68,14 +68,14 @@ defmodule OpenAI.Responses.MixProject do
       # Organize modules in the sidebar
       groups_for_modules: [
         "Main API": [
-          OpenAI.Responses
+          Responses
         ],
         "Supporting Modules": [
-          OpenAI.Responses.Response,
-          OpenAI.Responses.Stream,
-          OpenAI.Responses.Schema,
-          OpenAI.Responses.Pricing,
-          OpenAI.Responses.Prompt
+          Responses.Response,
+          Responses.Stream,
+          Responses.Schema,
+          Responses.Pricing,
+          Responses.Prompt
         ]
       ]
     ]
