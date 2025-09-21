@@ -40,6 +40,24 @@ defmodule Responses.Internal do
   """
   @spec get_api_key() :: String.t()
   def get_api_key do
-    Application.get_env(:openai_responses, :openai_api_key) || System.fetch_env!("OPENAI_API_KEY")
+    case Application.get_env(:responses, :openai_api_key) do
+      nil -> fetch_legacy_api_key()
+      key -> key
+    end
+  end
+
+  defp fetch_legacy_api_key do
+    case Application.get_env(:openai_responses, :openai_api_key) do
+      nil ->
+        System.fetch_env!("OPENAI_API_KEY")
+
+      key ->
+        IO.warn(
+          "Using :openai_responses for configuration is deprecated. Update to :responses before the next major release.",
+          []
+        )
+
+        key
+    end
   end
 end

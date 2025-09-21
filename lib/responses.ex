@@ -1,6 +1,6 @@
 defmodule Responses do
   @moduledoc """
-  Client for OpenAI Responses API.
+  Client for the Responses API.
 
   This module provides a simple interface for creating AI responses with support for:
   - Text and structured output generation
@@ -21,7 +21,7 @@ defmodule Responses do
 
   Set your OpenAI API key via:
   - Environment variable: `OPENAI_API_KEY`
-  - Application config: `config :openai_responses, :openai_api_key, "your-key"`
+  - Application config: `config :responses, :openai_api_key, "your-key"`
 
   ## Examples
 

@@ -3,18 +3,18 @@ defmodule Responses.MixProject do
 
   def project do
     [
-      app: :openai_responses,
-      version: "0.8.4",
+      app: :responses,
+      version: "0.0.1",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      description: "Elixir client for OpenAI Responses API",
+      description: "Elixir client for the Responses API",
       package: package(),
       docs: docs(),
 
       # Project metadata
       name: "Responses",
-      source_url: "https://github.com/vkryukov/openai_responses"
+      source_url: "https://github.com/vkryukov/responses"
     ]
   end
 
@@ -41,7 +41,7 @@ defmodule Responses.MixProject do
   defp package do
     [
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/vkryukov/openai_responses"},
+      links: %{"GitHub" => "https://github.com/vkryukov/responses"},
       maintainers: ["Victor Kryukov"],
       files: ~w(lib .formatter.exs mix.exs README* CHANGELOG* usage-rules.md)
     ]
@@ -56,12 +56,13 @@ defmodule Responses.MixProject do
       extras: [
         "README.md",
         "CHANGELOG.md",
+        {"CHANGELOG_OLD.md", [title: "Legacy Changelog"]},
         "tutorial.livemd"
       ],
 
       # Group documentation sections
       groups_for_extras: [
-        Guides: ["README.md", "CHANGELOG.md"],
+        Guides: ["README.md", "CHANGELOG.md", "CHANGELOG_OLD.md"],
         "Interactive Tutorials": ~r/\.livemd$/
       ],
 

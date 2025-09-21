@@ -3,11 +3,11 @@
 This document outlines the end-to-end plan for evolving the library into a multi-provider client that supports both OpenAI and xAI Responses APIs.
 
 ## 1. Renaming & Packaging
-- Rename all modules to the `Responses` namespace and adjust directory structure to match (`lib/responses/*.ex`).
-- Provide a compatibility layer (`OpenAI.Responses`) that delegates to the new modules and emits deprecation warnings; mark for removal in a future major release.
-- Update `mix.exs` project module, application atom (`:responses`), metadata (name, description, links), and any config references that currently mention `openai_responses`.
-- Migrate runtime configuration keys to `config :responses, ...` while still reading legacy keys for backward compatibility, logging a warning when used.
-- Run formatter and compilation to confirm the rename is complete and no stale aliases remain.
+- [x] Rename all modules to the `Responses` namespace and adjust directory structure to match (`lib/responses/*.ex`).
+- [x] (Removed) Provide a compatibility layer (`OpenAI.Responses`) that delegates to the new modules and emits deprecation warnings; mark for removal in a future major release.
+- [x] Update `mix.exs` project module, application atom (`:responses`), metadata (name, description, links), and any config references that currently mention `openai_responses`.
+- [x] Migrate runtime configuration keys to `config :responses, ...` while still reading legacy keys for backward compatibility, logging a warning when used.
+- [x] Run formatter and compilation to confirm the rename is complete and no stale aliases remain.
 
 ## 2. Provider Abstraction Core
 - Introduce a provider registry (`Responses.Provider`, `Responses.Provider.OpenAI`, `Responses.Provider.XAI`) encapsulating base URL, authentication keys, supported features, pricing, and model aliases.

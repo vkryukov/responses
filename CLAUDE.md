@@ -65,7 +65,7 @@ mix docs
 
 API Key (required) - set via one of:
 1. Environment variable: `OPENAI_API_KEY`
-2. Application config: `config :openai_responses, :openai_api_key, "your-key"`
+2. Application config: `config :responses, :openai_api_key, "your-key"`
 
 ### Key Patterns
 

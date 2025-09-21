@@ -1,15 +1,15 @@
 # Responses
 
-A client library for the OpenAI Responses API with automatic text extraction and cost calculation.
+A client library for the Responses API with automatic text extraction and cost calculation.
 
 ## Installation
 
-Add `openai_responses` to your list of dependencies in `mix.exs`:
+Add `responses` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
   [
-    {:openai_responses, "~> 0.8.4"}
+    {:responses, "~> 0.0.1"}
   ]
 end
 ```
@@ -25,7 +25,7 @@ export OPENAI_API_KEY="your-api-key"
 
 ### Application Config
 ```elixir
-config :openai_responses, :openai_api_key, "your-api-key"
+config :responses, :openai_api_key, "your-api-key"
 ```
 
 ## Getting Started
@@ -212,7 +212,7 @@ total_in_cents = response.cost.total_cost |> Decimal.mult(100) |> Decimal.to_flo
 
 ## Documentation
 
-- [API Documentation](https://hexdocs.pm/openai_responses)
+- [API Documentation](https://hexdocs.pm/responses)
 - [Interactive Tutorial](tutorial.livemd)
 - [GitHub Repository](https://github.com/vkryukov/openai-responses)
 ### Rehydrating a Response from a Map

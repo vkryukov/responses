@@ -6,7 +6,7 @@ This guide covers all public-facing functions of the Responses package for LLM a
 
 ```elixir
 # Add to mix.exs
-{:openai_responses, "~> 0.8.4"}
+{:responses, "~> 0.0.1"}
 
 # Set API key via environment variable
 export OPENAI_API_KEY="your-key"
