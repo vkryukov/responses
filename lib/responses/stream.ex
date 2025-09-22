@@ -130,13 +130,8 @@ defmodule Responses.Stream do
     end
   end
 
-  defp handle_stream_result(
-         {:ok, %{event: "response.completed", data: data}} = result,
-         callback,
-         agent
-       ) do
-    # Store the response data, accommodating providers that nest the payload differently
-    Agent.update(agent, fn existing -> extract_completed_response(data) || existing end)
+  defp handle_stream_result({:ok, %{data: data}} = result, callback, agent) do
+    maybe_store_response_snapshot(agent, data)
     callback.(result)
   end
 
@@ -144,10 +139,29 @@ defmodule Responses.Stream do
     callback.(result)
   end
 
-  defp extract_completed_response(data) when is_map(data) do
+  defp maybe_store_response_snapshot(agent, data) when is_map(data) do
+    case extract_response_snapshot(data) do
+      nil ->
+        :ok
+
+      snapshot ->
+        Agent.update(agent, fn
+          nil -> snapshot
+          existing -> deep_merge(existing, snapshot)
+        end)
+    end
+  end
+
+  defp maybe_store_response_snapshot(_agent, _data), do: :ok
+
+  defp extract_response_snapshot(data) when is_map(data) do
     cond do
       is_map(response = Map.get(data, "response")) ->
         response
+        |> maybe_put_new("id", Map.get(data, "id"))
+        |> maybe_put_new("object", Map.get(data, "object"))
+        |> maybe_put_new("model", Map.get(data, "model"))
+        |> maybe_put_new("usage", Map.get(data, "usage"))
 
       is_map(message = Map.get(data, "message")) ->
         message
@@ -160,7 +174,18 @@ defmodule Responses.Stream do
     end
   end
 
-  defp extract_completed_response(_), do: nil
+  defp extract_response_snapshot(_), do: nil
+
+  defp maybe_put_new(map, _key, nil), do: map
+  defp maybe_put_new(map, key, value), do: Map.put_new(map, key, value)
+
+  defp deep_merge(%{} = left, %{} = right) do
+    Map.merge(left, right, fn _key, left_val, right_val ->
+      deep_merge(left_val, right_val)
+    end)
+  end
+
+  defp deep_merge(_left, right), do: right
 
   defp parse_stream_chunk(chunk) do
     with [event, data] <- String.split(chunk, "\n", parts: 2),

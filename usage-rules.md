@@ -6,7 +6,7 @@ This guide covers all public-facing functions of the Responses package for LLM a
 
 ```elixir
 # Add to mix.exs
-{:responses, "~> 0.0.1"}
+{:responses, "~> 0.1.0"}
 
 # Set API keys via environment variables (only the providers you use are required)
 export OPENAI_API_KEY="your-openai-key"
@@ -49,6 +49,14 @@ response = Responses.create!(input: "Write a haiku", model: "gpt-4.1-mini")
 {:ok, response} = Responses.create(
   input: "Summarise the latest xAI blog post",
   model: "xai:grok-3"
+)
+
+# Streaming text from xAI while silencing unsupported option warnings
+Responses.create(
+  input: "List three takeaways about Grok-4",
+  model: "xai:grok-4-fast",
+  stream: Responses.Stream.delta(&IO.write/1),
+  provider_warnings: :ignore
 )
 
 # With structured output
@@ -175,6 +183,9 @@ models = Responses.list_models(:openai)
 
 # Filter xAI models by pattern
 grok_models = Responses.list_models(:xai, "grok-4")
+
+# Inspect the raw payload returned by xAI
+{:ok, raw} = Responses.request(provider: Responses.Provider.get!(:xai), url: "/models", method: :get)
 ```
 
 ### request/1

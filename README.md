@@ -9,7 +9,7 @@ Add `responses` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:responses, "~> 0.0.1"}
+    {:responses, "~> 0.1.0"}
   ]
 end
 ```

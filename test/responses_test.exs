@@ -227,6 +227,7 @@ defmodule ResponsesTest do
         _ ->
           assert length(words) == 2
       end
+
       assert follow_up_response.body["previous_response_id"] == initial_response.body["id"]
     end)
   end

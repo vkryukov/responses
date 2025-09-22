@@ -191,7 +191,7 @@ defmodule Responses do
       end
 
     with {:ok, response} <- result do
-      {:ok, process_response(response)}
+      {:ok, response |> ensure_body_map() |> process_response}
     end
   end
 
@@ -540,6 +540,9 @@ defmodule Responses do
     |> Response.extract_function_calls()
     |> Response.calculate_cost()
   end
+
+  defp ensure_body_map(%Response{body: body} = response) when is_map(body), do: response
+  defp ensure_body_map(%Response{} = response), do: %{response | body: %{}}
 
   @doc false
   @spec build_request(map()) :: {map(), Provider.Info.t()}
