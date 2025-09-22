@@ -170,14 +170,12 @@ defmodule Responses.TestSupport.LiveApiCase do
   def model_used?(_actual, _provider, _key), do: false
 
   defp variants_match?(actual, expected) when is_binary(actual) and is_binary(expected) do
-    cond do
-      actual == expected ->
-        true
-
-      true ->
-        Enum.any?(["-", "_", ".", ":"], fn separator ->
-          String.starts_with?(actual, expected <> separator)
-        end)
+    if actual == expected do
+      true
+    else
+      Enum.any?(["-", "_", ".", ":"], fn separator ->
+        String.starts_with?(actual, expected <> separator)
+      end)
     end
   end
 
@@ -273,28 +271,28 @@ defmodule Responses.TestSupport.LiveApiCase do
   """
   @spec run_for_each_provider((:openai | :xai -> any()), Keyword.t()) :: :ok
   def run_for_each_provider(fun, opts \\ []) when is_function(fun, 1) do
-    providers = providers(opts)
-
-    case providers do
-      [] ->
-        :skipped
-
-      providers ->
-        Enum.each(providers, fn provider ->
-          previous = Process.put(@provider_key, provider)
-
-          try do
-            fun.(provider)
-          after
-            if previous do
-              Process.put(@provider_key, previous)
-            else
-              Process.delete(@provider_key)
-            end
-          end
-        end)
+    case providers(opts) do
+      [] -> :skipped
+      providers -> execute_for_providers(providers, fun)
     end
   end
+
+  defp execute_for_providers(providers, fun) do
+    Enum.each(providers, fn provider ->
+      previous = Process.put(@provider_key, provider)
+
+      try do
+        fun.(provider)
+      after
+        restore_previous_provider(previous)
+      end
+    end)
+
+    :ok
+  end
+
+  defp restore_previous_provider(nil), do: Process.delete(@provider_key)
+  defp restore_previous_provider(previous), do: Process.put(@provider_key, previous)
 
   @doc """
   Convenience wrapper that yields both provider and the provider-specific default

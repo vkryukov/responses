@@ -37,7 +37,7 @@ defmodule Responses.Response do
           parse_error: map() | nil,
           function_calls: list() | nil,
           body: map(),
-          provider: Provider.t() | nil,
+          provider: Provider.Info.t() | nil,
           cost: cost_t | nil
         }
 
@@ -156,19 +156,10 @@ defmodule Responses.Response do
   defp to_decimal(i) when is_integer(i), do: Decimal.new(i)
   defp to_decimal(f) when is_float(f), do: Decimal.from_float(f)
 
-  defp to_decimal(s) when is_binary(s) do
-    try do
-      Decimal.new(s)
-    rescue
-      _ -> Decimal.new(0)
-    end
-  end
-
-  defp to_decimal(other) do
-    try do
-      Decimal.new(other)
-    rescue
-      _ -> Decimal.new(0)
+  defp to_decimal(value) do
+    case Decimal.cast(value) do
+      {:ok, decimal} -> decimal
+      :error -> Decimal.new(0)
     end
   end
 

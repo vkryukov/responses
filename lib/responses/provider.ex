@@ -100,9 +100,8 @@ defmodule Responses.Provider do
   def resolve_model(model) when is_binary(model) do
     case parse_model_identifier(model) do
       {:prefixed, provider_identifier, model_name} ->
-        with {:ok, provider} <- get(provider_identifier) do
-          {:ok, provider, model_name}
-        else
+        case get(provider_identifier) do
+          {:ok, provider} -> {:ok, provider, model_name}
           :error -> {:error, {:unknown_provider, provider_identifier}}
         end
 
@@ -150,20 +149,19 @@ defmodule Responses.Provider do
   @spec warn_on_unsupported(Info.t(), map(), term()) :: :ok
   def warn_on_unsupported(%Info{unsupported_options: []}, _options, _mode), do: :ok
 
-  def warn_on_unsupported(%Info{unsupported_options: unsupported_paths}, options, mode) do
-    case normalize_warning_mode(mode) do
-      :warn ->
-        Enum.each(unsupported_paths, fn {path, message} ->
-          if option_present?(options, path) do
-            IO.warn(message)
-          end
-        end)
+  def warn_on_unsupported(%Info{} = info, options, mode) do
+    info
+    |> warn_on_mode(normalize_warning_mode(mode), options)
+  end
 
-        :ok
+  defp warn_on_mode(_info, :ignore, _options), do: :ok
 
-      :ignore ->
-        :ok
-    end
+  defp warn_on_mode(%Info{unsupported_options: unsupported_paths}, :warn, options) do
+    unsupported_paths
+    |> Enum.filter(fn {path, _message} -> option_present?(options, path) end)
+    |> Enum.each(fn {_path, message} -> IO.warn(message) end)
+
+    :ok
   end
 
   @doc """

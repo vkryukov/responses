@@ -174,8 +174,6 @@ defmodule Responses.Stream do
     end
   end
 
-  defp extract_response_snapshot(_), do: nil
-
   defp maybe_put_new(map, _key, nil), do: map
   defp maybe_put_new(map, key, value), do: Map.put_new(map, key, value)
 
