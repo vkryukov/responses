@@ -2,7 +2,7 @@ defmodule Responses.Stream do
   @moduledoc """
   Streaming functionality for the Responses library.
 
-  This module provides functions for streaming responses from the OpenAI API,
+  This module provides functions for streaming responses from a configured provider,
   allowing you to process data as it arrives rather than waiting for the complete response.
 
   ## Stream Processing Helpers
@@ -27,12 +27,12 @@ defmodule Responses.Stream do
   """
 
   alias Responses
-  alias Responses.Internal
+  alias Responses.Options
 
   @streaming_timeout 30_000
 
   @doc """
-  Stream a response from the OpenAI API with a callback function.
+  Stream a response from a configured provider with a callback function.
 
   Takes a `callback` function that will be called for each parsed chunk of the stream.
   The callback receives results wrapped in tuples:
@@ -80,17 +80,18 @@ defmodule Responses.Stream do
     # Wrap the callback to capture response.completed event
     wrapped_callback = wrap_callback_with_agent(callback, agent)
 
-    # Ensure options are normalized and add stream: true
-    normalized_options =
-      options
-      |> Internal.prepare_payload()
-      |> Map.put("stream", true)
+    normalized = Options.normalize(options)
+    {_, normalized_without_stream} = Map.pop(normalized, "stream")
+
+    {request_payload, provider} = Responses.build_request(normalized_without_stream)
+    request_payload = Map.put(request_payload, "stream", true)
 
     # Make the streaming request
     result =
       Responses.request(
+        provider: provider,
         url: "/responses",
-        json: normalized_options,
+        json: request_payload,
         method: :post,
         into: fn {:data, data}, {req, resp} ->
           parse_stream_chunks(wrapped_callback, data)
@@ -104,8 +105,8 @@ defmodule Responses.Stream do
 
     # Return the response with the captured data
     case {result, response_data} do
-      {{:ok, _}, data} when not is_nil(data) ->
-        {:ok, %Responses.Response{body: data}}
+      {{:ok, %Responses.Response{} = base_response}, data} when not is_nil(data) ->
+        {:ok, %{base_response | body: data}}
 
       _ ->
         result
@@ -163,7 +164,7 @@ defmodule Responses.Stream do
   end
 
   @doc """
-  Returns a Stream that yields chunks from the OpenAI API.
+  Returns a Stream that yields chunks from the provider API.
 
   This function returns an Enumerable that yields results wrapped in tuples:
   `{:ok, chunk}` for successful chunks or `{:error, reason}` for parsing errors.

@@ -34,6 +34,7 @@ defmodule Responses do
   alias Responses.Error
   alias Responses.Internal
   alias Responses.Options
+  alias Responses.Provider
   alias Responses.Response
 
   @typedoc "User-facing options accepted by create/1, stream/1, run/2"
@@ -172,20 +173,23 @@ defmodule Responses do
   """
   @spec create(options_input) :: result
   def create(options) when is_list(options) or is_map(options) do
-    # Normalize options to a map with string keys
     normalized = Options.normalize(options)
-    stream_callback = Map.get(normalized, "stream")
+    {stream_callback, normalized} = Map.pop(normalized, "stream")
 
     result =
       if stream_callback do
-        # Handle streaming - pass normalized options directly
         Responses.Stream.stream_with_callback(stream_callback, normalized)
       else
-        # Regular non-streaming request
-        request(url: "/responses", json: Internal.prepare_payload(normalized), method: :post)
+        {payload, provider} = build_request(normalized)
+
+        request(
+          provider: provider,
+          url: "/responses",
+          json: payload,
+          method: :post
+        )
       end
 
-    # Process the response
     with {:ok, response} <- result do
       {:ok, process_response(response)}
     end
@@ -348,7 +352,13 @@ defmodule Responses do
   """
   @spec list_models(String.t()) :: [map()]
   def list_models(match \\ "") do
-    {:ok, response} = request(url: "/models")
+    provider = Provider.get!(:openai)
+
+    {:ok, response} =
+      request(
+        provider: provider,
+        url: "/models"
+      )
 
     response.body["data"]
     |> Enum.filter(&(&1["id"] =~ match))
@@ -495,19 +505,56 @@ defmodule Responses do
   Accepts that same arguments as `Req.request/1`.
   You should provide `url`, `json`, `method`, and other options as needed.
   """
-  @spec request(keyword()) :: result
-  def request(options) do
+  @spec request(keyword() | map()) :: result
+  def request(options) when is_list(options) do
+    {provider, req_options} = Keyword.pop(options, :provider)
+    provider = ensure_provider_struct(provider)
+
     req =
       Req.new(
-        base_url: "https://api.openai.com/v1",
-        receive_timeout: @default_receive_timeout,
-        auth: {:bearer, Internal.get_api_key()}
+        base_url: provider.base_url,
+        receive_timeout: @default_receive_timeout
       )
-      |> Req.merge(options)
+      |> put_auth(provider)
+      |> Req.merge(req_options)
 
+    do_request(req, provider)
+  end
+
+  def request(%{} = options) do
+    provider = Map.fetch!(options, :provider)
+    rest = options |> Map.delete(:provider) |> Map.to_list()
+    request([provider: provider] ++ rest)
+  end
+
+  # Process a response by extracting text, JSON, function calls, and calculating cost
+  defp process_response(response) do
+    response
+    |> Response.extract_json()
+    |> Response.extract_function_calls()
+    |> Response.calculate_cost()
+  end
+
+  @doc false
+  @spec build_request(map()) :: {map(), Provider.Info.t()}
+  def build_request(options) when is_map(options) do
+    payload = Internal.prepare_payload(options)
+    {payload, provider} = Provider.assign_model(payload)
+    Provider.warn_on_unsupported(provider, options)
+    {payload, provider}
+  end
+
+  defp ensure_provider_struct(%Provider.Info{} = provider), do: provider
+
+  defp ensure_provider_struct(nil),
+    do: raise(ArgumentError, "Request options must include a :provider")
+
+  defp ensure_provider_struct(identifier), do: Provider.get!(identifier)
+
+  defp do_request(req, provider) do
     case Req.request(req) do
       {:ok, %Req.Response{status: 200, body: body}} ->
-        {:ok, %Response{body: body}}
+        {:ok, %Response{body: body, provider: provider}}
 
       {:ok, resp = %Req.Response{}} ->
         {:error, Error.from_response(resp)}
@@ -517,11 +564,8 @@ defmodule Responses do
     end
   end
 
-  # Process a response by extracting text, JSON, function calls, and calculating cost
-  defp process_response(response) do
-    response
-    |> Response.extract_json()
-    |> Response.extract_function_calls()
-    |> Response.calculate_cost()
+  defp put_auth(req, provider) do
+    api_key = Provider.fetch_api_key(provider)
+    Req.merge(req, auth: {:bearer, api_key})
   end
 end

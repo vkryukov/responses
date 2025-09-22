@@ -1,6 +1,6 @@
 defmodule Responses.Response do
   @moduledoc """
-  Represent a response from the OpenAI API.
+  Represent a response returned by a supported provider.
 
   The `Response` struct contains the following fields:
   - `text`: The extracted text from the response body.
@@ -8,6 +8,7 @@ defmodule Responses.Response do
   - `parse_error`: A map containing error messages if parsing failed.
   - `function_calls`: An array of extracted function calls from the response.
   - `body`: The raw response body.
+  - `provider`: Provider metadata for the originating request.
   - `cost`: The calculated cost of the response in USD.
 
   All of the functions in this module act like "plugs", meaning they take a response as input and return a modified response as output.
@@ -17,11 +18,12 @@ defmodule Responses.Response do
   The `extract_function_calls/1` function extracts function calls from the response body.
   The `calculate_cost/1` function calculates the cost of the response based on token usage and model pricing.
   """
-  defstruct [:text, :parsed, :parse_error, :function_calls, :body, :cost]
+  defstruct [:text, :parsed, :parse_error, :function_calls, :body, :provider, :cost]
 
   alias Responses.Pricing
+  alias Responses.Provider
 
-  @typedoc "Structured representation of an OpenAI response"
+  @typedoc "Structured representation of a provider response"
   @type cost_t :: %{
           required(:input_cost) => Decimal.t(),
           required(:output_cost) => Decimal.t(),
@@ -35,6 +37,7 @@ defmodule Responses.Response do
           parse_error: map() | nil,
           function_calls: list() | nil,
           body: map(),
+          provider: Provider.t() | nil,
           cost: cost_t | nil
         }
 
@@ -60,6 +63,7 @@ defmodule Responses.Response do
       parse_error: normalize_parse_error(get_key(data, :parse_error)),
       function_calls: normalize_function_calls(get_key(data, :function_calls)),
       body: normalize_body(get_key(data, :body)),
+      provider: normalize_provider(get_key(data, :provider)),
       cost: normalize_cost(get_key(data, :cost))
     }
   end
@@ -129,6 +133,23 @@ defmodule Responses.Response do
     value = Map.get(map, key) || Map.get(map, Atom.to_string(key))
     to_decimal(value)
   end
+
+  defp normalize_provider(nil), do: nil
+  defp normalize_provider(%Provider.Info{} = provider), do: provider
+
+  defp normalize_provider(%{} = provider_map) do
+    id = Map.get(provider_map, :id) || Map.get(provider_map, "id")
+    normalize_provider(id)
+  end
+
+  defp normalize_provider(identifier) when is_atom(identifier) or is_binary(identifier) do
+    case Provider.get(identifier) do
+      {:ok, info} -> info
+      :error -> nil
+    end
+  end
+
+  defp normalize_provider(_other), do: nil
 
   defp to_decimal(%Decimal{} = d), do: d
   defp to_decimal(nil), do: Decimal.new(0)
@@ -299,7 +320,8 @@ defmodule Responses.Response do
   defp get_cost_params(body) do
     with model when is_binary(model) <- Map.get(body, "model"),
          usage when is_map(usage) <- Map.get(body, "usage"),
-         pricing when is_map(pricing) <- Pricing.get_pricing(model) do
+         {:ok, provider, canonical_model} <- Provider.resolve_model(model),
+         pricing when is_map(pricing) <- Pricing.get_pricing(provider.id, canonical_model) do
       {:ok, usage, pricing}
     else
       _ -> :error

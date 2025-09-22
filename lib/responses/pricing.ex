@@ -1,13 +1,15 @@
 defmodule Responses.Pricing do
   @moduledoc """
-  Pricing information for OpenAI models.
+  Pricing information for supported Responses providers.
 
-  Prices are in USD per million tokens, stored as Decimal values for precision.
-  Source: https://platform.openai.com/docs/pricing, last updated on 2025-06-03.
+  Prices are in USD per million tokens and stored as Decimal values for
+  precision. Source data for OpenAI is from https://platform.openai.com/docs/pricing,
+  last refreshed on 2025-06-03. Pricing for other providers is populated as it
+  becomes available.
   """
 
-  # Convert pricing at compile time
-  pricing_data = %{
+  # Raw pricing grouped by provider before Decimal coercion
+  openai_pricing_data = %{
     # gpt-4.1 models
     "gpt-4.1" => {2.00, 0.50, 8.00},
     "gpt-4.1-2025-04-14" => {2.00, 0.50, 8.00},
@@ -115,32 +117,69 @@ defmodule Responses.Pricing do
     "gpt-5-nano-2025-08-07" => {0.05, 0.005, 0.40}
   }
 
-  # Convert to Decimal at compile time
-  @pricing pricing_data
-           |> Enum.map(fn {model, {input, cached, output}} ->
-             {model,
-              %{
-                input: if(input, do: Decimal.new(to_string(input)), else: nil),
-                cached_input: if(cached, do: Decimal.new(to_string(cached)), else: nil),
-                output: if(output, do: Decimal.new(to_string(output)), else: nil)
-              }}
+  pricing_data = %{
+    openai: openai_pricing_data,
+    xai: %{}
+  }
+
+  decimal = fn
+    nil -> nil
+    value -> Decimal.new(to_string(value))
+  end
+
+  @pricing Enum.reduce(pricing_data, %{}, fn {provider, models}, acc ->
+             models =
+               models
+               |> Enum.map(fn {model, {input, cached, output}} ->
+                 {model,
+                  %{
+                    input: decimal.(input),
+                    cached_input: decimal.(cached),
+                    output: decimal.(output)
+                  }}
+               end)
+               |> Map.new()
+
+             Map.put(acc, provider, models)
            end)
-           |> Map.new()
 
   @doc """
-  Get pricing information for a specific model.
-
-  Returns a map with :input, :cached_input, and :output prices per million tokens as Decimal values,
-  or nil if the model is not found.
+  Get pricing information for a model. Returns `nil` when pricing data is unknown.
   """
-  def get_pricing(model) do
-    Map.get(@pricing, model)
+  @spec get_pricing(String.t()) :: map() | nil
+  def get_pricing(model) when is_binary(model) do
+    Enum.find_value(@pricing, fn {_provider, models} -> Map.get(models, model) end)
   end
 
   @doc """
-  List all available models with pricing.
+  Get pricing for a provider/model combination.
   """
+  @spec get_pricing(atom(), String.t()) :: map() | nil
+  def get_pricing(provider, model) when is_atom(provider) and is_binary(model) do
+    @pricing
+    |> Map.get(provider, %{})
+    |> Map.get(model)
+  end
+
+  def get_pricing(_provider, _model), do: nil
+
+  @doc """
+  List models with pricing metadata for all providers.
+  """
+  @spec list_models() :: [String.t()]
   def list_models do
-    Map.keys(@pricing)
+    @pricing
+    |> Map.values()
+    |> Enum.flat_map(&Map.keys/1)
+  end
+
+  @doc """
+  List models with pricing metadata for a specific provider.
+  """
+  @spec list_models(atom()) :: [String.t()]
+  def list_models(provider) when is_atom(provider) do
+    @pricing
+    |> Map.get(provider, %{})
+    |> Map.keys()
   end
 end
