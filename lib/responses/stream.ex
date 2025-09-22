@@ -135,14 +135,32 @@ defmodule Responses.Stream do
          callback,
          agent
        ) do
-    # Store the response data
-    Agent.update(agent, fn _ -> data["response"] end)
+    # Store the response data, accommodating providers that nest the payload differently
+    Agent.update(agent, fn existing -> extract_completed_response(data) || existing end)
     callback.(result)
   end
 
   defp handle_stream_result(result, callback, _agent) do
     callback.(result)
   end
+
+  defp extract_completed_response(data) when is_map(data) do
+    cond do
+      is_map(response = Map.get(data, "response")) ->
+        response
+
+      is_map(message = Map.get(data, "message")) ->
+        message
+
+      Map.has_key?(data, "output") ->
+        data
+
+      true ->
+        nil
+    end
+  end
+
+  defp extract_completed_response(_), do: nil
 
   defp parse_stream_chunk(chunk) do
     with [event, data] <- String.split(chunk, "\n", parts: 2),

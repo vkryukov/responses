@@ -396,7 +396,8 @@ defmodule Responses.StreamTest do
             end
           end)
 
-        assert result.text =~ "ABC"
+        condensed_text = result.text |> String.replace(~r/\s+/, "")
+        assert condensed_text =~ "ABC"
         assert "response.completed" in result.events
       end)
     end

@@ -28,7 +28,7 @@ defmodule Responses.TestSupport.LiveApiCase do
     xai: %{
       default_model: "xai:grok-4-fast-non-reasoning",
       alternate_model: "xai:grok-4-fast",
-      small_model: "xai:grok-4-fast-non-reasoning",
+      small_model: "xai:grok-3-mini",
       reasoning_model: "xai:grok-4-fast",
       list_match: "grok",
       invalid_model: "xai:invalid-model",
@@ -147,11 +147,41 @@ defmodule Responses.TestSupport.LiveApiCase do
 
   def model_used?(actual, provider, key) when is_binary(actual) do
     expected = model(provider, key)
-    base = model_base(expected)
-    String.contains?(actual, base)
+    expected_base = model_base(expected)
+    actual_base = model_base(actual)
+
+    actual_variants =
+      [actual, actual_base]
+      |> Enum.uniq()
+      |> Enum.reject(&is_nil/1)
+
+    expected_variants =
+      [expected, expected_base]
+      |> Enum.uniq()
+      |> Enum.reject(&is_nil/1)
+
+    Enum.any?(actual_variants, fn actual_variant ->
+      Enum.any?(expected_variants, fn expected_variant ->
+        variants_match?(actual_variant, expected_variant)
+      end)
+    end)
   end
 
   def model_used?(_actual, _provider, _key), do: false
+
+  defp variants_match?(actual, expected) when is_binary(actual) and is_binary(expected) do
+    cond do
+      actual == expected ->
+        true
+
+      true ->
+        Enum.any?(["-", "_", ".", ":"], fn separator ->
+          String.starts_with?(actual, expected <> separator)
+        end)
+    end
+  end
+
+  defp variants_match?(_actual, _expected), do: false
 
   @doc """
   Returns the provider(s) that should run live API tests.
@@ -235,8 +265,11 @@ defmodule Responses.TestSupport.LiveApiCase do
   end
 
   @doc """
-  Runs the supplied function for each selected provider. Raises `ExUnit.SkipTest`
-  when no providers match the environment selection or capability requirements.
+  Runs the supplied function for each selected provider.
+
+  Returns `:skipped` when no providers match the environment selection or
+  capability requirements, allowing the caller to decide how to handle skipped
+  scenarios.
   """
   @spec run_for_each_provider((:openai | :xai -> any()), Keyword.t()) :: :ok
   def run_for_each_provider(fun, opts \\ []) when is_function(fun, 1) do
