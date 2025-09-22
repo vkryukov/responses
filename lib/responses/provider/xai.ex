@@ -22,7 +22,11 @@ defmodule Responses.Provider.XAI do
         {[
            "instructions"
          ],
-         "xAI does not yet support the `instructions` option. The request will be sent unchanged."}
+         "xAI does not yet support the `instructions` option. The request will be sent unchanged."},
+        {[
+           "reasoning",
+           "effort"
+         ], "xAI does not yet support reasoning effort. The request will be sent unchanged."}
       ]
     }
   end

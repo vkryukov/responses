@@ -158,6 +158,34 @@ Responses.stream(
 |> Enum.each(&IO.puts/1)
 ```
 
+## Testing
+
+Run the regular test suite with:
+
+```bash
+mix test
+```
+
+### Live API tests
+
+Live integration tests are tagged with `:api` and are excluded by default. Choose which providers to exercise by setting `RESPONSES_LIVE_API` before running `mix test`:
+
+- `openai` (default if unset) runs the suite once against the configured OpenAI model
+- `xai` runs the same tests against xAI
+- `both` runs each live test for both providers back-to-back
+- `none` skips live tests even when `--include api` is passed
+
+Then execute `mix test --include api` (optionally with `--color`/`--seed`).
+
+Each provider also honours a dedicated default model override:
+
+```bash
+export RESPONSES_TEST_OPENAI_MODEL="openai:gpt-4.1-mini"
+export RESPONSES_TEST_XAI_MODEL="xai:grok-4-fast-non-reasoning"
+```
+
+You can set the same values in config via `config :responses, :openai_test_model, ...` / `:xai_test_model`. Tests fall back to the built-in defaults shown above when nothing is configured.
+
 ### Array Schemas (New in 0.6.0)
 
 Arrays can now be used directly at the root level of schema definitions:
