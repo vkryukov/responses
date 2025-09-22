@@ -645,12 +645,10 @@ defmodule Responses do
   end
 
   defp convert_developer_message(%{} = message) do
-    cond do
-      developer_role_message?(message) ->
-        {apply_role_conversion(message), true}
-
-      true ->
-        {message, false}
+    if developer_role_message?(message) do
+      {apply_role_conversion(message), true}
+    else
+      {message, false}
     end
   end
 
