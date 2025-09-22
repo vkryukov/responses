@@ -77,6 +77,15 @@ defmodule Responses.MixProject do
           Responses.Schema,
           Responses.Pricing,
           Responses.Prompt
+        ],
+        "Provider Modules": [
+          Responses.Provider,
+          Responses.Provider.Info,
+          Responses.Provider.OpenAI,
+          Responses.Provider.XAI
+        ],
+        "Exceptions": [
+          Responses.Error
         ]
       ]
     ]
