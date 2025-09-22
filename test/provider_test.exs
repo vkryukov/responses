@@ -108,6 +108,22 @@ defmodule Responses.ProviderTest do
       assert output =~ "xAI does not support `role: :developer`"
     end
 
+    test "preserves developer role for openai models" do
+      options = %{
+        "model" => "gpt-4.1-mini",
+        "input" => [%{"role" => "developer", "content" => "style"}]
+      }
+
+      output =
+        capture_io(:stderr, fn ->
+          {payload, provider} = Responses.build_request(options)
+          assert provider.id == :openai
+          assert [%{"role" => "developer", "content" => "style"}] = payload["input"]
+        end)
+
+      assert output == ""
+    end
+
     test "suppresses conversion warning when provider_warnings is ignore" do
       options = %{
         "model" => "grok-4-mini",
