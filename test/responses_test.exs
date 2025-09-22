@@ -112,7 +112,7 @@ defmodule ResponsesTest do
 
   @tag :api
   test "create with invalid model returns error" do
-    result = Responses.create(input: "test", model: "non-existent-model-xyz")
+    result = Responses.create(input: "test", model: "openai:non-existent-model-xyz")
 
     assert {:error, error} = result
     assert is_map(error)
@@ -588,7 +588,7 @@ defmodule ResponsesTest do
       # Test with invalid input that would cause an error
       assert_raise RuntimeError, fn ->
         Responses.run!(
-          [input: "test", model: "invalid-model"],
+          [input: "test", model: "xai:invalid-model"],
           %{}
         )
       end

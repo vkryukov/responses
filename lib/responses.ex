@@ -544,11 +544,8 @@ defmodule Responses do
     {payload, provider}
   end
 
+  defp ensure_provider_struct(nil), do: Provider.get!(:openai)
   defp ensure_provider_struct(%Provider.Info{} = provider), do: provider
-
-  defp ensure_provider_struct(nil),
-    do: raise(ArgumentError, "Request options must include a :provider")
-
   defp ensure_provider_struct(identifier), do: Provider.get!(identifier)
 
   defp do_request(req, provider) do

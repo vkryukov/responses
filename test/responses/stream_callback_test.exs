@@ -66,7 +66,7 @@ defmodule Responses.StreamCallbackTest do
       result =
         Responses.create(
           input: "Test",
-          model: "non-existent-model",
+          model: "openai:non-existent-model",
           stream: fn _ -> :ok end
         )
 
