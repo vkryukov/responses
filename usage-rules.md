@@ -166,15 +166,15 @@ opts = Prompt.add_function_outputs(%{input: []}, response.function_calls, functi
 )
 ```
 
-### list_models/0 and list_models/1
-Lists available OpenAI models with optional filtering.
+### list_models/1 and list_models/2
+Lists available models for a specific provider with optional filtering.
 
 ```elixir
-# List all models
-models = Responses.list_models()
+# List all OpenAI models
+models = Responses.list_models(:openai)
 
-# Filter by pattern
-gpt_models = Responses.list_models("gpt")
+# Filter xAI models by pattern
+grok_models = Responses.list_models(:xai, "grok-4")
 ```
 
 ### request/1

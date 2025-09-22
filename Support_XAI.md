@@ -20,7 +20,7 @@ This document outlines the end-to-end plan for evolving the library into a multi
 - [x] Route explicit `provider:model` identifiers directly to the chosen provider without additional aliasing.
 - [x] Support prefix-based provider inference (`gpt-*`, `o1*`, `o3*`, `o4-mini*` → OpenAI; `grok-*` → xAI) and ensure follow-up calls reuse the resolved provider.
 - [x] Document the identifier rules and add regression tests covering both prefixed and inferred models.
-- [ ] Revisit `Responses.list_models/1` if/when we need a combined provider listing; currently remains OpenAI-specific.
+- [x] Update `Responses.list_models/1` and `/2` to fetch provider-specific listings, leaving combined listings for future consideration if needed.
 
 ## 4. Capability Validation & Feedback
 - [x] Emit provider-specific warnings for unsupported options (e.g., `instructions` with xAI) while still forwarding the request.

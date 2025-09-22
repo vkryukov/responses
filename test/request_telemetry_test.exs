@@ -19,7 +19,12 @@ defmodule Responses.RequestTelemetryTest do
   test "request emits telemetry event with provider metadata" do
     ref = make_ref()
 
-    :telemetry.attach_many({__MODULE__, ref}, [[:responses, :request, :stop]], &__MODULE__.telemetry_handler/4, self())
+    :telemetry.attach_many(
+      {__MODULE__, ref},
+      [[:responses, :request, :stop]],
+      &__MODULE__.telemetry_handler/4,
+      self()
+    )
 
     provider = %{Responses.Provider.get!(:openai) | base_url: "http://127.0.0.1:65535"}
 

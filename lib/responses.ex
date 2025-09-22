@@ -14,7 +14,7 @@ defmodule Responses do
   - `create!/1` and `create!/2` - Same as create but raises on error
   - `run/2` and `run!/2` - Run conversations with automatic function calling
   - `stream/1` - Stream responses as an Enumerable
-  - `list_models/0` and `list_models/1` - List available OpenAI models
+  - `list_models/1` and `list_models/2` - List available models for a provider
   - `request/1` - Low-level API request function
 
   ## Configuration
@@ -346,13 +346,19 @@ defmodule Responses do
   end
 
   @doc """
-  List available models.
+  List available models for a provider.
 
-  Accepts an optional `match` string to filter by model ID.
+  Accepts a provider identifier (atom, string, or `Responses.Provider.Info` struct) and an
+  optional `match` string to filter by model ID.
   """
-  @spec list_models(String.t()) :: [map()]
-  def list_models(match \\ "") do
-    provider = Provider.get!(:openai)
+  @spec list_models(Provider.id() | String.t() | Provider.Info.t()) :: [map()]
+  def list_models(provider) do
+    list_models(provider, "")
+  end
+
+  @spec list_models(Provider.id() | String.t() | Provider.Info.t(), String.t()) :: [map()]
+  def list_models(provider, match) when is_binary(match) do
+    provider = ensure_provider_struct(provider)
 
     {:ok, response} =
       request(

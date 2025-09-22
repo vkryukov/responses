@@ -86,7 +86,7 @@ defmodule ResponsesTest do
 
   @tag :api
   test "list_models returns available models" do
-    models = Responses.list_models()
+    models = Responses.list_models(:openai)
 
     assert is_list(models)
     assert length(models) > 0
@@ -95,7 +95,7 @@ defmodule ResponsesTest do
 
   @tag :api
   test "list_models with match filter returns filtered models" do
-    gpt_models = Responses.list_models("gpt")
+    gpt_models = Responses.list_models(:openai, "gpt")
 
     assert is_list(gpt_models)
     assert Enum.all?(gpt_models, &(&1["id"] =~ "gpt"))
