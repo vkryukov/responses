@@ -1,6 +1,6 @@
 # Responses
 
-A client library for the Responses API with automatic text extraction and cost calculation.
+Multi-provider client for OpenAI and xAI Responses-compatible APIs with automatic text extraction, cost calculation, and streaming helpers.
 
 ## Installation
 
@@ -16,26 +16,35 @@ end
 
 ## Configuration
 
-Set your provider API keys using one of these methods:
+Set your provider API keys using one of these methods (only configure the providers you use):
 
 ### Environment Variable
 ```bash
-export OPENAI_API_KEY="your-api-key"
+export OPENAI_API_KEY="your-openai-key"
 export XAI_API_KEY="your-xai-key"
 ```
 
 ### Application Config
 ```elixir
-config :responses, :openai_api_key, "your-api-key"
-config :responses, :xai_api_key, "your-xai-key"
+config :responses, :openai_api_key, System.fetch_env!("OPENAI_API_KEY")
+config :responses, :xai_api_key, System.fetch_env!("XAI_API_KEY")
 ```
 
-### Provider selection
+### Provider & model selection
 
-- Specify `model: "provider:model-name"` to target a provider explicitly, e.g. `"openai:gpt-4.1"` or `"xai:grok-3"`.
+- Use `model: "provider:model-name"` to target a provider explicitly, e.g. `"openai:gpt-4.1"` or `"xai:grok-3"`.
 - Common OpenAI prefixes (`gpt-*`, `o1*`, `o3*`, `o4-mini*`) and xAI prefixes (`grok-*`) are inferred automatically, so `model: "gpt-5"` and `model: "grok-3"` work out of the box.
-- Unknown model names raise an error to avoid accidental misrouting.
-- Pass `provider_warnings: :ignore` (or set `config :responses, :provider_warning_mode, :ignore`) to silence provider capability warnings.
+- Provide unknown models explicitly (`"provider:model"`) to avoid accidental misrouting—the library raises `ArgumentError` when it cannot infer a provider.
+- Pass `provider_warnings: :ignore` (or set `config :responses, :provider_warning_mode, :ignore`) to silence provider capability warnings emitted when a provider does not yet support an option (e.g. `instructions` for xAI).
+
+### Discovering models
+
+Call `Responses.list_models/1` (or `/2`) with a provider to inspect the upstream `/models` response:
+
+```elixir
+Responses.list_models(:openai)
+Responses.list_models(:xai, "grok")
+```
 ```
 
 ## Getting Started

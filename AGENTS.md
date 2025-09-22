@@ -32,5 +32,5 @@
 - Usage rules: on every release/version bump, update `usage-rules.md` to reflect new/changed public APIs, deprecations, behavior changes, and update the dependency snippet to the released version. Ensure examples match current behavior.
 
 ## Security & Configuration Tips
-- Never commit secrets. Configure the API key via `OPENAI_API_KEY` or `config :responses, :openai_api_key, "your-key"`.
+- Never commit secrets. Configure provider API keys via `OPENAI_API_KEY` / `XAI_API_KEY` or configuration (`config :responses, :openai_api_key` / `:xai_api_key`).
 - Do not store keys in tests or docs; gate live calls behind the `:api` tag.

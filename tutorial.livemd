@@ -9,15 +9,15 @@ Mix.install([
 
 ## Introduction
 
-Responses is a [Small Development Kit](https://dashbit.co/blog/sdks-with-req-stripe) for the OpenAI [Responses](https://platform.openai.com/docs/api-reference/responses) API. It can get you started in no time, and automatically supports conversation state, structured responses, streaming, function calls, and cost calculations.
+Responses is a [Small Development Kit](https://dashbit.co/blog/sdks-with-req-stripe) for the OpenAI and xAI Responses-compatible APIs. It can get you started in no time, and automatically supports conversation state, structured responses, streaming, function calls, and cost calculations across providers.
 
-If you want an industrial-grade library that supports multiple providers, you should instead consider one of [LangChain](https://hexdocs.pm/langchain/readme.html), [OpenaiEx](https://hexdocs.pm/openai_ex/OpenaiEx.html), or [Instructor](https://hexdocs.pm/instructor/Instructor.html). If, however, you want to start as quickly as possible without learning a new framework first, and are ready to trade the flexibility of choosing an LLM provider for the conveniences of OpenAI's latest API, you've come to the right place!
+If you want an industrial-grade library with deeper orchestration features you should consider one of [LangChain](https://hexdocs.pm/langchain/readme.html), [OpenaiEx](https://hexdocs.pm/openai_ex/OpenaiEx.html), or [Instructor](https://hexdocs.pm/instructor/Instructor.html). If, however, you want to start as quickly as possible without learning a new framework first and still retain the option to pick between OpenAI and xAI, you've come to the right place!
 
 <!-- livebook:{"branch_parent_index":0} -->
 
 ## Basic usage
 
-The basic usage is simple: set the `OPENAI_API_KEY` environment variable and add `responses` to your `mix.exs`
+Set the API keys for the providers you plan to call (`OPENAI_API_KEY` for OpenAI, `XAI_API_KEY` for xAI) and add `responses` to your `mix.exs`
 
 <!-- livebook:{"force_markdown":true} -->
 
@@ -58,6 +58,27 @@ response =
 IO.puts("#{response.text}\n\nCost: $#{response.cost.total_cost}")
 ```
 
+### Choosing providers and models
+
+Models can be specified in two ways:
+
+- `"provider:model"` resolves to the named provider directly.
+- A bare model name (e.g. `"gpt-5"`, `"grok-3"`) is inferred when the library recognises the prefix (`gpt-*`, `o1*`, `o3*`, `o4-mini*` for OpenAI; `grok-*` for xAI).
+
+```elixir
+Responses.create!(input: "Summarise the latest xAI blog post", model: "xai:grok-3")
+Responses.create!(input: "Explain sparse autoencoders", model: "gpt-5")
+```
+
+When the provider does not support a specific option (for example, xAI currently ignores `instructions`), `Responses` emits a warning but forwards the request unchanged. Silence these notices with `provider_warnings: :ignore` or via `config :responses, :provider_warning_mode, :ignore`.
+
+To inspect upstream `/models` metadata, call `Responses.list_models/1` (or `/2` for filtered results) with a provider identifier:
+
+```elixir
+Responses.list_models(:openai)
+Responses.list_models(:xai, "grok-4")
+```
+
 There is also `create/2` and `create!/2` that take `%Responses.Response{}` as a first argument and keyword list as a second to automatically handle the [conversation state](https://platform.openai.com/docs/guides/conversation-state?api-mode=responses). You can also build prompts with `Responses.Prompt` helpers:
 
 ```elixir
@@ -73,7 +94,7 @@ alias Responses.Prompt
 |> IO.puts()
 ```
 
-Notice that the follow-up response also talks like a pirate due to conversation state kept by OpenAI. In terms of generation settings, only the model, reasoning effort, and text verbosity are preserved across follow-ups; schema is not preserved and must be specified again if needed.
+Notice that the follow-up response also talks like a pirate because the provider preserves conversation state. In terms of generation settings, only the model, reasoning effort, and text verbosity are preserved across follow-ups; schema is not preserved and must be specified again if needed.
 
 <!-- livebook:{"branch_parent_index":0} -->
 

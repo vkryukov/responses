@@ -14,7 +14,7 @@ This document outlines the end-to-end plan for evolving the library into a multi
 - [x] Resolve providers by model identifier (`provider:model` or heuristic prefixes) without maintaining alias maps or defaults.
 - [x] Refactor request/streaming/cost helpers to derive base URL, credentials, and pricing via the resolved provider; responses carry provider info for downstream consumers.
 - [x] Emit provider-specific warnings (e.g., xAI `instructions`) while forwarding requests unchanged.
-- [ ] Document supported prefixes, example usage, and guidance for extending the provider heuristics when new models appear.
+- [x] Document supported prefixes, example usage, and guidance for extending the provider heuristics when new models appear.
 
 ## 3. Model Routing & Discovery
 - [x] Route explicit `provider:model` identifiers directly to the chosen provider without additional aliasing.
@@ -37,10 +37,10 @@ This document outlines the end-to-end plan for evolving the library into a multi
 - [x] Add tests validating pricing for representative models across providers and guard against missing pricing entries.
 
 ## 7. Documentation & Tutorials
-- Refresh the README introduction, examples, and badges to reflect multi-provider support and the new namespace.
-- Update `tutorial.livemd`, `usage-rules.md`, and ExDoc guides with provider-prefixed model examples, capability caveats, and configuration walkthroughs.
-- Insert CHANGELOG entries summarizing the rename, provider abstraction, and breaking changes; bump the version as appropriate.
-- Review existing guides (e.g., `AGENTS.md`, `CLAUDE.md`) for assumptions tied to OpenAI and adjust references accordingly.
+- [x] Refresh the README introduction, examples, and configuration guidance to reflect multi-provider support and provider discovery helpers.
+- [x] Update `tutorial.livemd`, `usage-rules.md`, and supporting guides with provider-prefixed model examples, warning behaviour, and `Responses.list_models/2` semantics.
+- [x] Insert CHANGELOG entries under `[Unreleased]` covering the multi-provider documentation pass and the new `list_models` contract.
+- [x] Review existing guides (e.g., `AGENTS.md`) for OpenAI-only assumptions and document the additional provider credentials.
 
 ## 8. Testing & Release Readiness
 - Update all unit and integration tests to use the new namespace and cover provider resolution, capability validation, and pricing behavior.
