@@ -256,11 +256,6 @@ IO.inspect(response.cost)
 total_in_cents = response.cost.total_cost |> Decimal.mult(100) |> Decimal.to_float()
 ```
 
-## Documentation
-
-- [API Documentation](https://hexdocs.pm/responses)
-- [Interactive Tutorial](tutorial.livemd)
-- [GitHub Repository](https://github.com/vkryukov/openai-responses)
 ### Rehydrating a Response from a Map
 
 Use `Responses.Response.from_map/1` to rebuild a `%Response{}` struct from a stored map (supports atom or string keys):
@@ -277,3 +272,9 @@ stored = %{
 response = Response.from_map(stored)
 # => %Response{text: "hello", body: %{"id" => "resp_123", ...}, cost: %{...}}
 ```
+
+## Documentation
+
+- [API Documentation](https://hexdocs.pm/responses)
+- [Interactive Tutorial](tutorial.livemd)
+- [GitHub Repository](https://github.com/vkryukov/openai-responses)
