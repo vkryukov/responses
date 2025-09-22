@@ -309,5 +309,27 @@ defmodule Responses.CalculateCostTest do
         cached_discount: "0"
       })
     end
+
+    test "calculates cost for xai grok models" do
+      response = %Response{
+        body: %{
+          "model" => "grok-3",
+          "usage" => %{
+            "input_tokens" => 2_000,
+            "output_tokens" => 500,
+            "input_tokens_details" => %{"cached_tokens" => 1_000}
+          }
+        }
+      }
+
+      result = Response.calculate_cost(response)
+
+      assert_cost_equals(result.cost, %{
+        input_cost: "0.00375",
+        output_cost: "0.0075",
+        total_cost: "0.01125",
+        cached_discount: "0.00225"
+      })
+    end
   end
 end

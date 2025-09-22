@@ -38,7 +38,7 @@ defmodule Responses.Provider do
 
   @providers [OpenAI.definition(), XAI.definition()]
 
-  @openai_prefixes ["gpt-", "o1", "o3", "o4"]
+  @openai_prefixes ["gpt-", "o1", "o3", "o4-mini"]
   @openai_exact []
 
   @xai_prefixes ["grok-"]
@@ -147,17 +147,23 @@ defmodule Responses.Provider do
   @doc """
   Emit warnings for any options unsupported by the provider.
   """
-  @spec warn_on_unsupported(Info.t(), map()) :: :ok
-  def warn_on_unsupported(%Info{unsupported_options: []}, _options), do: :ok
+  @spec warn_on_unsupported(Info.t(), map(), term()) :: :ok
+  def warn_on_unsupported(%Info{unsupported_options: []}, _options, _mode), do: :ok
 
-  def warn_on_unsupported(%Info{unsupported_options: unsupported_paths}, options) do
-    Enum.each(unsupported_paths, fn {path, message} ->
-      if option_present?(options, path) do
-        IO.warn(message)
-      end
-    end)
+  def warn_on_unsupported(%Info{unsupported_options: unsupported_paths}, options, mode) do
+    case normalize_warning_mode(mode) do
+      :warn ->
+        Enum.each(unsupported_paths, fn {path, message} ->
+          if option_present?(options, path) do
+            IO.warn(message)
+          end
+        end)
 
-    :ok
+        :ok
+
+      :ignore ->
+        :ok
+    end
   end
 
   @doc """
@@ -257,4 +263,14 @@ defmodule Responses.Provider do
   defp matches_xai?(model) do
     Enum.any?(@xai_prefixes, &String.starts_with?(model, &1))
   end
+
+  defp normalize_warning_mode(nil) do
+    Application.get_env(:responses, :provider_warning_mode, :warn)
+    |> normalize_warning_mode()
+  end
+
+  defp normalize_warning_mode(mode) when mode in [:warn, :ignore], do: mode
+  defp normalize_warning_mode("warn"), do: :warn
+  defp normalize_warning_mode("ignore"), do: :ignore
+  defp normalize_warning_mode(_other), do: :warn
 end

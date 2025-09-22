@@ -117,9 +117,21 @@ defmodule Responses.Pricing do
     "gpt-5-nano-2025-08-07" => {0.05, 0.005, 0.40}
   }
 
+  xai_pricing_data = %{
+    "grok-code-fast-1" => {0.20, 0.02, 1.50},
+    "grok-4-fast-reasoning" => {0.20, 0.05, 0.50},
+    "grok-4-fast" => {0.20, 0.05, 0.50},
+    "grok-4-fast-non-reasoning" => {0.20, 0.05, 0.50},
+    "grok-4" => {3.00, 0.75, 15.00},
+    "grok-4-0709" => {3.00, 0.75, 15.00},
+    "grok-4-latest" => {3.00, 0.75, 15.00},
+    "grok-3-mini" => {0.30, 0.075, 0.50},
+    "grok-3" => {3.00, 0.75, 15.00}
+  }
+
   pricing_data = %{
     openai: openai_pricing_data,
-    xai: %{}
+    xai: xai_pricing_data
   }
 
   decimal = fn

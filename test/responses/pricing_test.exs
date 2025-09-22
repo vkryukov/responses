@@ -54,6 +54,18 @@ defmodule Responses.PricingTest do
       assert Decimal.equal?(pricing.input, Decimal.new("5.00"))
       assert Decimal.equal?(pricing.cached_input, Decimal.new("1.25"))
     end
+
+    test "returns pricing for xai models" do
+      pricing = Pricing.get_pricing("grok-3")
+      assert Decimal.equal?(pricing.input, Decimal.new("3.00"))
+      assert Decimal.equal?(pricing.cached_input, Decimal.new("0.75"))
+      assert Decimal.equal?(pricing.output, Decimal.new("15.00"))
+
+      pricing_mini = Pricing.get_pricing("grok-3-mini")
+      assert Decimal.equal?(pricing_mini.input, Decimal.new("0.30"))
+      assert Decimal.equal?(pricing_mini.cached_input, Decimal.new("0.075"))
+      assert Decimal.equal?(pricing_mini.output, Decimal.new("0.50"))
+    end
   end
 
   describe "list_models/0" do
@@ -65,6 +77,7 @@ defmodule Responses.PricingTest do
       assert "o3-2025-04-16" in models
       assert "o1-pro-2025-03-19" in models
       assert "gpt-4o-2024-08-06" in models
+      assert "grok-3" in models
     end
 
     test "includes all model variants" do
@@ -76,6 +89,13 @@ defmodule Responses.PricingTest do
 
       assert "o3" in models
       assert "o3-2025-04-16" in models
+    end
+
+    test "lists xai models by provider" do
+      models = Pricing.list_models(:xai)
+      assert "grok-3" in models
+      assert "grok-4" in models
+      assert "grok-4-fast" in models
     end
   end
 end

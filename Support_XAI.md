@@ -19,22 +19,22 @@ This document outlines the end-to-end plan for evolving the library into a multi
 ## 3. Model Routing & Discovery
 - [x] Route explicit `provider:model` identifiers directly to the chosen provider without additional aliasing.
 - [x] Support prefix-based provider inference (`gpt-*`, `o1*`, `o3*`, `o4-mini*` → OpenAI; `grok-*` → xAI) and ensure follow-up calls reuse the resolved provider.
-- [ ] Document the identifier rules and add regression tests covering both prefixed and inferred models.
+- [x] Document the identifier rules and add regression tests covering both prefixed and inferred models.
 - [ ] Revisit `Responses.list_models/1` if/when we need a combined provider listing; currently remains OpenAI-specific.
 
 ## 4. Capability Validation & Feedback
 - [x] Emit provider-specific warnings for unsupported options (e.g., `instructions` with xAI) while still forwarding the request.
-- [ ] Decide on additional feature warnings or an opt-out flag, then document the trade-offs.
-- [ ] Add regression tests covering warnings for provider-incompatible options.
+- [x] Provide an opt-out path for provider warnings (`provider_warnings: :ignore` or global config) and document the behaviour.
+- [x] Add regression tests covering warnings for provider-incompatible options.
 
 ## 5. Authentication & Configuration
 - [x] Support provider-specific credentials via config/env lookup with clear errors when unset; base URL overrides are independent per provider.
-- [ ] Document configuration patterns for mixed-provider usage and migration from the single-provider setup.
+- [x] Document configuration patterns for mixed-provider usage and migration from the single-provider setup.
 
 ## 6. Pricing & Telemetry
-- Extend `Responses.Pricing` to store per-provider token prices; ensure cost calculations select the correct provider and surface an error if pricing data is missing.
-- Include provider metadata in telemetry/logging hooks so downstream systems can differentiate usage by provider.
-- Add tests validating pricing for representative models across providers and guard against missing pricing entries.
+- [x] Extend `Responses.Pricing` to store OpenAI and xAI token prices; ensure cost calculations select the correct provider and surface an error if pricing data is missing.
+- [x] Include provider metadata in telemetry hooks so downstream systems can differentiate usage by provider.
+- [x] Add tests validating pricing for representative models across providers and guard against missing pricing entries.
 
 ## 7. Documentation & Tutorials
 - Refresh the README introduction, examples, and badges to reflect multi-provider support and the new namespace.

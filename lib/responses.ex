@@ -538,10 +538,20 @@ defmodule Responses do
   @doc false
   @spec build_request(map()) :: {map(), Provider.Info.t()}
   def build_request(options) when is_map(options) do
+    {warnings_pref, options} = pop_provider_warning_pref(options)
     payload = Internal.prepare_payload(options)
     {payload, provider} = Provider.assign_model(payload)
-    Provider.warn_on_unsupported(provider, options)
+    Provider.warn_on_unsupported(provider, options, warnings_pref)
     {payload, provider}
+  end
+
+  defp pop_provider_warning_pref(options) do
+    {pref, remainder} = Map.pop(options, "provider_warnings")
+
+    case pref do
+      nil -> Map.pop(remainder, :provider_warnings)
+      _ -> {pref, remainder}
+    end
   end
 
   defp ensure_provider_struct(nil), do: Provider.get!(:openai)
@@ -549,7 +559,10 @@ defmodule Responses do
   defp ensure_provider_struct(identifier), do: Provider.get!(identifier)
 
   defp do_request(req, provider) do
-    case Req.request(req) do
+    {duration_us, result} = :timer.tc(fn -> Req.request(req) end)
+    emit_request_telemetry(provider, req, result, duration_us)
+
+    case result do
       {:ok, %Req.Response{status: 200, body: body}} ->
         {:ok, %Response{body: body, provider: provider}}
 
@@ -565,4 +578,27 @@ defmodule Responses do
     api_key = Provider.fetch_api_key(provider)
     Req.merge(req, auth: {:bearer, api_key})
   end
+
+  defp emit_request_telemetry(provider, req, result, duration_us) do
+    measurements = %{duration: duration_us}
+
+    method = Map.get(req, :method) || Map.get(req.options, :method) || :get
+
+    metadata = %{
+      provider: provider.id,
+      provider_name: provider.name,
+      method: method,
+      url: Map.get(req, :url),
+      result: telemetry_result_tag(result)
+    }
+
+    :telemetry.execute([:responses, :request, :stop], measurements, metadata)
+  rescue
+    _ -> :ok
+  end
+
+  defp telemetry_result_tag({:ok, %Req.Response{status: status}}) when status in 200..299, do: :ok
+  defp telemetry_result_tag({:ok, %Req.Response{status: status}}), do: {:http_error, status}
+  defp telemetry_result_tag({:error, error}), do: {:error, error}
+  defp telemetry_result_tag(other), do: {:unknown, other}
 end

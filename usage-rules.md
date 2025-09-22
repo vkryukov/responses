@@ -8,9 +8,24 @@ This guide covers all public-facing functions of the Responses package for LLM a
 # Add to mix.exs
 {:responses, "~> 0.0.1"}
 
-# Set API key via environment variable
-export OPENAI_API_KEY="your-key"
+# Set API keys via environment variables (only the providers you use are required)
+export OPENAI_API_KEY="your-openai-key"
+export XAI_API_KEY="your-xai-key"
+
+# Optional: configure in your config files instead
+config :responses, :openai_api_key, System.fetch_env!("OPENAI_API_KEY")
+config :responses, :xai_api_key, System.fetch_env!("XAI_API_KEY")
 ```
+
+### Selecting models & providers
+
+- Use `provider:model` to address a specific provider explicitly, e.g. `"openai:gpt-4.1"` or `"xai:grok-3"`.
+- For common OpenAI and xAI models you can omit the prefix; the library infers the provider using the following heuristics:
+  - `gpt-*`, `o1*`, `o3*`, `o4-mini*` map to OpenAI.
+  - `grok-*` maps to xAI.
+- Unknown or ambiguous models raise an `ArgumentError` so you can address new models explicitly.
+- To silence provider capability warnings on a single request pass `provider_warnings: :ignore`; set
+  `config :responses, :provider_warning_mode, :ignore` to silence them globally.
 
 ## Main Module: Responses
 
@@ -28,6 +43,12 @@ response = Responses.create!(input: "Write a haiku", model: "gpt-4.1-mini")
   model: "gpt-4.1-mini",
   temperature: 0.7,
   max_tokens: 500
+)
+
+# Target xAI explicitly
+{:ok, response} = Responses.create(
+  input: "Summarise the latest xAI blog post",
+  model: "xai:grok-3"
 )
 
 # With structured output
@@ -163,6 +184,20 @@ Low-level API request function for custom endpoints.
 {:ok, response} = Responses.request(
   url: "/models",
   method: :get
+)
+
+# Override the provider when hitting xAI endpoints
+{:ok, response} = Responses.request(
+  provider: Responses.Provider.get!(:xai),
+  url: "/models",
+  method: :get
+)
+
+# Suppress provider warnings for a single call
+{:ok, response} = Responses.create(
+  input: "Tell me a joke",
+  model: "grok-3",
+  provider_warnings: :ignore
 )
 ```
 

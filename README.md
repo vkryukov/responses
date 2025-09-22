@@ -16,16 +16,26 @@ end
 
 ## Configuration
 
-Set your OpenAI API key using one of these methods:
+Set your provider API keys using one of these methods:
 
 ### Environment Variable
 ```bash
 export OPENAI_API_KEY="your-api-key"
+export XAI_API_KEY="your-xai-key"
 ```
 
 ### Application Config
 ```elixir
 config :responses, :openai_api_key, "your-api-key"
+config :responses, :xai_api_key, "your-xai-key"
+```
+
+### Provider selection
+
+- Specify `model: "provider:model-name"` to target a provider explicitly, e.g. `"openai:gpt-4.1"` or `"xai:grok-3"`.
+- Common OpenAI prefixes (`gpt-*`, `o1*`, `o3*`, `o4-mini*`) and xAI prefixes (`grok-*`) are inferred automatically, so `model: "gpt-5"` and `model: "grok-3"` work out of the box.
+- Unknown model names raise an error to avoid accidental misrouting.
+- Pass `provider_warnings: :ignore` (or set `config :responses, :provider_warning_mode, :ignore`) to silence provider capability warnings.
 ```
 
 ## Getting Started
