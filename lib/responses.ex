@@ -550,6 +550,14 @@ defmodule Responses do
     {warnings_pref, options} = pop_provider_warning_pref(options)
     payload = Internal.prepare_payload(options)
     {payload, provider} = Provider.assign_model(payload)
+    {payload, converted?} = maybe_convert_xai_developer_roles(payload, provider)
+
+    if converted? and Provider.warning_mode(warnings_pref) == :warn do
+      IO.warn(
+        "xAI does not support `role: :developer`. Converted affected messages to `:system`. Update your prompts to silence this warning."
+      )
+    end
+
     Provider.warn_on_unsupported(provider, options, warnings_pref)
     {payload, provider}
   end
@@ -610,4 +618,64 @@ defmodule Responses do
   defp telemetry_result_tag({:ok, %Req.Response{status: status}}), do: {:http_error, status}
   defp telemetry_result_tag({:error, error}), do: {:error, error}
   defp telemetry_result_tag(other), do: {:unknown, other}
+
+  defp maybe_convert_xai_developer_roles(payload, %Provider.Info{id: :xai} = _provider) do
+    case Map.get(payload, "input") do
+      messages when is_list(messages) ->
+        {converted_messages, changed?} = convert_developer_messages(messages)
+
+        if changed? do
+          {Map.put(payload, "input", converted_messages), true}
+        else
+          {payload, false}
+        end
+
+      _ ->
+        {payload, false}
+    end
+  end
+
+  defp maybe_convert_xai_developer_roles(payload, _provider), do: {payload, false}
+
+  defp convert_developer_messages(messages) do
+    Enum.map_reduce(messages, false, fn message, changed_acc ->
+      {converted, changed?} = convert_developer_message(message)
+      {converted, changed_acc or changed?}
+    end)
+  end
+
+  defp convert_developer_message(%{} = message) do
+    cond do
+      developer_role_message?(message) ->
+        {apply_role_conversion(message), true}
+
+      true ->
+        {message, false}
+    end
+  end
+
+  defp convert_developer_message(message), do: {message, false}
+
+  defp developer_role_message?(message) do
+    has_role? = role_value(message) in [:developer, "developer"]
+    has_role? and not Map.has_key?(message, "type") and not Map.has_key?(message, :type)
+  end
+
+  defp role_value(message) do
+    Map.get(message, "role") || Map.get(message, :role)
+  end
+
+  defp apply_role_conversion(message) do
+    message
+    |> maybe_put_role("role")
+    |> maybe_put_role(:role)
+  end
+
+  defp maybe_put_role(message, key) do
+    case Map.fetch(message, key) do
+      {:ok, :developer} -> Map.put(message, key, :system)
+      {:ok, "developer"} -> Map.put(message, key, "system")
+      _ -> message
+    end
+  end
 end

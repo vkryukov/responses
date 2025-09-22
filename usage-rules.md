@@ -447,6 +447,7 @@ IO.puts(response.text)
 - Prompt helpers (`append/2`, `prepend/2`, `add_user/2`, `add_developer/2`, `add_system/2`) always normalize `:input` to a list of message maps.
 - Strings are converted to `%{role: :user, content: string}`.
 - A single message map is wrapped in a list; `:input` is never a single map.
+- When routing to xAI models, any `role: :developer` messages are converted to `:system` and emit a warning unless provider warnings are disabled (`provider_warnings: :ignore`).
 ```
 
 ### Structured Data Extraction

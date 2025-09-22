@@ -91,5 +91,38 @@ defmodule Responses.ProviderTest do
 
       assert output == ""
     end
+
+    test "converts developer role to system for xai and warns" do
+      options = %{
+        "model" => "grok-4-mini",
+        "input" => [%{"role" => "developer", "content" => "style"}]
+      }
+
+      output =
+        capture_io(:stderr, fn ->
+          {payload, provider} = Responses.build_request(options)
+          assert provider.id == :xai
+          assert [%{"role" => "system", "content" => "style"}] = payload["input"]
+        end)
+
+      assert output =~ "xAI does not support `role: :developer`"
+    end
+
+    test "suppresses conversion warning when provider_warnings is ignore" do
+      options = %{
+        "model" => "grok-4-mini",
+        "input" => [%{"role" => "developer", "content" => "style"}],
+        "provider_warnings" => :ignore
+      }
+
+      output =
+        capture_io(:stderr, fn ->
+          {payload, provider} = Responses.build_request(options)
+          assert provider.id == :xai
+          assert [%{"role" => "system", "content" => "style"}] = payload["input"]
+        end)
+
+      assert output == ""
+    end
   end
 end

@@ -87,6 +87,10 @@ final = Responses.create!(with_calls, opts)
 IO.puts(final.text)
 ```
 
+When routing to xAI models, the API does not yet accept `role: :developer`. The library
+automatically rewrites those messages to `:system` and emits a warning unless
+`provider_warnings: :ignore` is set, so prefer `:system` when composing prompts for xAI.
+
 ### Simple terminal chat
 
 ```elixir

@@ -84,7 +84,7 @@ defmodule Responses.MixProject do
           Responses.Provider.OpenAI,
           Responses.Provider.XAI
         ],
-        "Exceptions": [
+        Exceptions: [
           Responses.Error
         ]
       ]

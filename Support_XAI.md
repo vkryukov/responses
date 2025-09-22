@@ -26,6 +26,7 @@ This document outlines the end-to-end plan for evolving the library into a multi
 - [x] Emit provider-specific warnings for unsupported options (e.g., `instructions` with xAI) while still forwarding the request.
 - [x] Provide an opt-out path for provider warnings (`provider_warnings: :ignore` or global config) and document the behaviour.
 - [x] Add regression tests covering warnings for provider-incompatible options.
+- [x] Rewrite `role: :developer` messages to `:system` when targeting xAI while emitting a warning so applications can update their prompts deliberately.
 
 ## 5. Authentication & Configuration
 - [x] Support provider-specific credentials via config/env lookup with clear errors when unset; base URL overrides are independent per provider.

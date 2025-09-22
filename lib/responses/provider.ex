@@ -151,7 +151,13 @@ defmodule Responses.Provider do
 
   def warn_on_unsupported(%Info{} = info, options, mode) do
     info
-    |> warn_on_mode(normalize_warning_mode(mode), options)
+    |> warn_on_mode(warning_mode(mode), options)
+  end
+
+  @doc false
+  @spec warning_mode(term()) :: :warn | :ignore
+  def warning_mode(mode_pref) do
+    normalize_warning_mode(mode_pref)
   end
 
   defp warn_on_mode(_info, :ignore, _options), do: :ok
