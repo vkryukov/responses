@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Migration Guide
 1. Update your dependency entry to `{:responses, "~> 0.1.0"}`.
 2. Configure provider-specific credentials with `config :responses, :openai_api_key` and/or `:xai_api_key` (or the matching environment variables).
-3. When requesting models, supply explicit provider hints (`model: "provider:model"`) or rely on the documented prefixes (`gpt-*`, `o1*`, `o3*`, `o4-mini*` map to OpenAI; `grok-*` maps to xAI`).
+3. When requesting models, supply explicit provider hints (`model: "provider:model"`) or rely on the documented prefixes (`gpt-*`, `o1*`, `o3*`, `o4-mini*` map to OpenAI; `grok-*` maps to xAI).
 4. Review telemetry consumers for the new provider metadata and adjust alerting or dashboards as needed.
 
 ## [0.0.1] - 2024-09-21

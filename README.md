@@ -39,12 +39,11 @@ config :responses, :xai_api_key, System.fetch_env!("XAI_API_KEY")
 
 ### Discovering models
 
-Call `Responses.list_models/1` (or `/2`) with a provider to inspect the upstream `/models` response:
+Call `Responses.list_models/1` (or `Responses.list_models/2`) with a provider to inspect the upstream `/models` response:
 
 ```elixir
 Responses.list_models(:openai)
 Responses.list_models(:xai, "grok")
-```
 ```
 
 ## Getting Started
