@@ -6,7 +6,7 @@ This guide covers all public-facing functions of the Responses package for LLM a
 
 ```elixir
 # Add to mix.exs
-{:responses, "~> 0.1.1"}
+{:responses, "~> 0.1.2"}
 
 # Set API keys via environment variables (only the providers you use are required)
 export OPENAI_API_KEY="your-openai-key"
@@ -91,6 +91,8 @@ followup = Responses.create!(first, input: "Tell me more about its concurrency")
 # - Preserved: model, reasoning.effort, text.verbosity
 # - Not preserved: text.format (schema) and any other options
 #   If you need structured output on a follow-up, pass schema: ... explicitly.
+# - When a provider marks one of the preserved options as unsupported (e.g. xAI and reasoning
+#   effort), the library automatically drops that field before sending the follow-up request.
 
 # Note: Passing a bare binary to `create/1` or `stream/1` is deprecated.
 # Always pass options with `input: ...` and an explicit `model`.

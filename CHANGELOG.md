@@ -3,6 +3,13 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] - 2025-09-23
+### Fixed
+- Prevent follow-up requests from re-sending provider-unsupported options preserved from the previous response (e.g. xAI reasoning effort), eliminating chained request failures.
+
+### Added
+- Introduced option map helpers to drop nested paths and detect user-preserved values so provider filtering logic can be reused across the client.
+
 ## [0.1.1] - 2025-09-22
 ### Changed
 - Automatically convert `role: :developer` messages to `:system` when routing requests to xAI models and emit a provider warning unless disabled; OpenAI requests continue to preserve developer prompts.
