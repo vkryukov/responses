@@ -3,6 +3,10 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2025-09-23
+### Added
+- Added OpenAI pricing metadata for the `gpt-5-codex` model.
+
 ## [0.1.2] - 2025-09-23
 ### Fixed
 - Prevent follow-up requests from re-sending provider-unsupported options preserved from the previous response (e.g. xAI reasoning effort), eliminating chained request failures.

@@ -105,6 +105,7 @@ defmodule Responses.Pricing do
 
     # gpt-5 models
     "gpt-5" => {1.25, 0.125, 10.00},
+    "gpt-5-codex" => {1.25, 0.125, 10.00},
     "gpt-5-2025-08-07" => {1.25, 0.125, 10.00},
     "gpt-5-chat-latest" => {1.25, 0.125, 10.00},
 

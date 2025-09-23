@@ -30,6 +30,11 @@ defmodule Responses.PricingTest do
       assert Decimal.equal?(pricing1.cached_input, Decimal.new("0.125"))
       assert Decimal.equal?(pricing1.output, Decimal.new("10.00"))
 
+      pricing_codex = Pricing.get_pricing("gpt-5-codex")
+      assert Decimal.equal?(pricing_codex.input, Decimal.new("1.25"))
+      assert Decimal.equal?(pricing_codex.cached_input, Decimal.new("0.125"))
+      assert Decimal.equal?(pricing_codex.output, Decimal.new("10.00"))
+
       pricing2 = Pricing.get_pricing("gpt-5-mini")
       assert Decimal.equal?(pricing2.input, Decimal.new("0.25"))
       assert Decimal.equal?(pricing2.cached_input, Decimal.new("0.025"))
