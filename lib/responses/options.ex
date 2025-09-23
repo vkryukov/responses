@@ -147,6 +147,52 @@ defmodule Responses.Options do
     end)
   end
 
+  @doc """
+  Drop the provided nested paths from the options map.
+
+  Removes empty maps created by deleting nested keys so we avoid sending empty containers.
+  """
+  @spec drop_paths(t, [[String.t()]]) :: t
+  def drop_paths(options, paths) when is_map(options) and is_list(paths) do
+    Enum.reduce(paths, options, fn path, acc -> drop_path(acc, path) end)
+  end
+
+  @doc """
+  Returns true when every segment in the path exists as a key in the options map.
+  """
+  @spec path_present?(map, [String.t()]) :: boolean
+  def path_present?(options, path) when is_map(options) and is_list(path) do
+    has_path?(options, path)
+  end
+
+  @doc """
+  Drop preserved options when they are unsupported by the provider.
+
+  Paths are removed only when they were absent from the user-supplied options and the
+  preserved value matches what came from the previous response body.
+  """
+  @spec drop_preserved_paths(t, map, map, [[String.t()]]) :: t
+  def drop_preserved_paths(options, _previous_body, _user_options, []), do: options
+
+  def drop_preserved_paths(options, previous_body, user_options, paths)
+      when is_map(options) and is_map(previous_body) and is_map(user_options) and is_list(paths) do
+    Enum.reduce(paths, options, fn path, acc ->
+      cond do
+        path_present?(user_options, path) ->
+          acc
+
+        get_in(previous_body, path) == nil ->
+          acc
+
+        get_in(acc, path) == get_in(previous_body, path) ->
+          drop_paths(acc, [path])
+
+        true ->
+          acc
+      end
+    end)
+  end
+
   # Create intermediate maps as needed and put the value at the given path
   defp put_in_new(map, [k], value) when is_binary(k), do: Map.put(map, k, value)
 
@@ -158,5 +204,42 @@ defmodule Responses.Options do
       end
 
     Map.put(map, k, put_in_new(child, rest, value))
+  end
+
+  defp drop_path(map, [k]) when is_binary(k), do: Map.delete(map, k)
+
+  defp drop_path(map, [k | rest]) when is_binary(k) and is_list(rest) do
+    case Map.fetch(map, k) do
+      {:ok, %{} = nested} ->
+        updated = drop_path(nested, rest)
+
+        if map_size(updated) == 0 do
+          Map.delete(map, k)
+        else
+          Map.put(map, k, updated)
+        end
+
+      {:ok, _other} ->
+        Map.delete(map, k)
+
+      :error ->
+        map
+    end
+  end
+
+  defp drop_path(map, _other), do: map
+
+  defp has_path?(_map, []), do: false
+
+  defp has_path?(map, [k]) when is_binary(k) do
+    Map.has_key?(map, k)
+  end
+
+  defp has_path?(map, [k | rest]) when is_binary(k) and is_list(rest) do
+    case Map.fetch(map, k) do
+      {:ok, %{} = nested} -> has_path?(nested, rest)
+      {:ok, _other} -> false
+      :error -> false
+    end
   end
 end

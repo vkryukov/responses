@@ -244,12 +244,32 @@ defmodule Responses do
   def create(%Response{} = previous_response, options) when is_list(options) or is_map(options) do
     # Normalize to map with string keys for consistent handling
     options_map = Options.normalize(options)
+    user_supplied_options = options_map
+
+    previous_body =
+      case previous_response.body do
+        %{} = body -> body
+        _ -> %{}
+      end
 
     # Add previous_response_id
-    options_map = Map.put(options_map, "previous_response_id", previous_response.body["id"])
+    options_map =
+      case Map.get(previous_body, "id") do
+        nil -> options_map
+        id -> Map.put(options_map, "previous_response_id", id)
+      end
 
     # Preserve LLM options from the previous response if not explicitly provided
-    options_map = preserve_llm_options(options_map, previous_response.body)
+    options_map = preserve_llm_options(options_map, previous_body)
+
+    # Remove any provider-unsupported options that were preserved automatically
+    options_map =
+      filter_auto_preserved_unsupported_options(
+        options_map,
+        previous_response,
+        previous_body,
+        user_supplied_options
+      )
 
     create(options_map)
   end
@@ -257,6 +277,40 @@ defmodule Responses do
   # Helper to preserve selected LLM options from previous response
   defp preserve_llm_options(options_map, previous_body) do
     Options.preserve_paths(options_map, previous_body, @preserved_llm_paths)
+  end
+
+  defp filter_auto_preserved_unsupported_options(
+         options_map,
+         %Response{} = previous_response,
+         previous_body,
+         user_supplied_options
+       ) do
+    provider = resolve_target_provider(previous_response, previous_body)
+
+    case provider do
+      %Provider.Info{unsupported_options: unsupported} when unsupported != [] ->
+        paths = Enum.map(unsupported, fn {path, _message} -> path end)
+        Options.drop_preserved_paths(options_map, previous_body, user_supplied_options, paths)
+
+      _ ->
+        options_map
+    end
+  end
+
+  defp resolve_target_provider(%Response{provider: %Provider.Info{} = provider}, _previous_body),
+    do: provider
+
+  defp resolve_target_provider(_response, previous_body) do
+    provider_from_model(previous_body)
+  end
+
+  defp provider_from_model(previous_body) do
+    with model when is_binary(model) <- Map.get(previous_body, "model"),
+         {:ok, provider, _canonical} <- Provider.resolve_model(model) do
+      provider
+    else
+      _ -> nil
+    end
   end
 
   @doc """

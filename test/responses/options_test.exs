@@ -74,4 +74,32 @@ defmodule Responses.OptionsTest do
       assert result["text"] == %{}
     end
   end
+
+  describe "drop_paths/2 and path_present?/2" do
+    test "drop_paths removes nested value and prunes empty parents" do
+      options = %{"reasoning" => %{"effort" => "medium"}, "model" => "grok-4"}
+
+      result = Options.drop_paths(options, [["reasoning", "effort"]])
+
+      refute Map.has_key?(result, "reasoning")
+      assert result["model"] == "grok-4"
+    end
+
+    test "drop_paths leaves parent when siblings remain" do
+      options = %{"reasoning" => %{"effort" => "medium", "mode" => "fast"}}
+
+      result = Options.drop_paths(options, [["reasoning", "effort"]])
+
+      assert result["reasoning"] == %{"mode" => "fast"}
+    end
+
+    test "path_present? detects nested keys" do
+      options = %{"reasoning" => %{"effort" => "medium"}}
+
+      assert Options.path_present?(options, ["reasoning"])
+      assert Options.path_present?(options, ["reasoning", "effort"])
+      refute Options.path_present?(options, ["reasoning", "mode"])
+      refute Options.path_present?(options, ["text", "verbosity"])
+    end
+  end
 end
